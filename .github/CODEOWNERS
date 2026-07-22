@@ -1,0 +1,6 @@
+# .github/CODEOWNERS
+*           @esther-cheng
+backend/    @esther-cheng @ignaciogalindo3
+frontend/   @esther-cheng @cdonaldson717
+db/         @esther-cheng @chernindana
+.github/    @esther-cheng
