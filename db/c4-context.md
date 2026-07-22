@@ -2,31 +2,31 @@
 
 ```mermaid
 C4Context
-title ReconX - System Context
+title ReconX - Enterprise Trade Reconciliation System Context
 
-Person(trader, "Trader", "Views positions, reconciliations, and exceptions")
-Person(operations, "Operations Analyst", "Investigates and resolves reconciliation breaks")
-Person(admin, "Platform Administrator", "Configures, monitors, and supports the platform")
-Person(auditor, "Auditor", "Reviews reconciliation results and audit history")
+Person(trader, "Front Office Trader", "Executes trades and monitors reconciliation status.")
+Person(operations, "Operations Analyst", "Investigates and resolves reconciliation exceptions.")
+Person(administrator, "Platform Administrator", "Maintains users, permissions, and system configuration.")
+Person(auditor, "Compliance Auditor", "Reviews reconciliation history and audit reports.")
 
-System(reconx, "ReconX", "Reconciliation platform for comparing, monitoring, and reporting financial data")
+System(reconx, "ReconX", "Trade reconciliation platform that compares internal and external trade data, identifies discrepancies, and tracks exception resolution.")
 
-System_Ext(oms, "OMS", "Order Management System")
-System_Ext(sftp, "SFTP Server", "Secure file exchange")
-System_Ext(bloomberg, "Bloomberg", "Market and reference data")
-System_Ext(email, "Email Service", "Notification delivery")
-System_Ext(sso, "Enterprise SSO", "Identity provider")
-System_Ext(grafana, "Grafana", "Monitoring and dashboards")
+System_Ext(oms, "Order Management System (OMS)", "Provides internal trade events.")
+System_Ext(sftp, "Counterparty SFTP", "Delivers end-of-day trade files.")
+System_Ext(bloomberg, "Bloomberg", "Supplies market and reference data.")
+System_Ext(email, "Corporate Email Service", "Delivers alerts and reconciliation notifications.")
+System_Ext(sso, "Enterprise SSO", "Authenticates users through OpenID Connect.")
+System_Ext(grafana, "Grafana", "Displays operational metrics and dashboards.")
 
-Rel(trader, reconx, "Uses reconciliation dashboards and workflows", "HTTPS")
-Rel(operations, reconx, "Investigates and resolves reconciliation exceptions", "HTTPS")
-Rel(admin, reconx, "Configures and administers the platform", "HTTPS")
-Rel(auditor, reconx, "Reviews audit history and reconciliation reports", "HTTPS")
+Rel(trader, reconx, "Views reconciliations and trade status", "HTTPS")
+Rel(operations, reconx, "Investigates and resolves exceptions", "HTTPS")
+Rel(administrator, reconx, "Administers users and system settings", "HTTPS")
+Rel(auditor, reconx, "Reviews audit reports", "HTTPS (read-only)")
 
-Rel(reconx, oms, "Imports orders and execution data", "HTTPS / API")
-Rel(reconx, sftp, "Imports and exports reconciliation files", "SFTP")
-Rel(reconx, bloomberg, "Retrieves market and reference data", "HTTPS / API")
+Rel(oms, reconx, "Publishes trade records", "Kafka")
+Rel(sftp, reconx, "Transfers reconciliation files", "SFTP")
+Rel(reconx, bloomberg, "Requests pricing and reference data", "REST / HTTPS")
 Rel(reconx, email, "Sends alerts and scheduled reports", "SMTP")
-Rel(reconx, sso, "Authenticates users", "OIDC")
-Rel(reconx, grafana, "Publishes metrics for operational monitoring", "Prometheus / HTTP")
+Rel(reconx, sso, "Authenticates users", "OIDC / HTTPS")
+Rel(grafana, reconx, "Collects application metrics", "HTTPS")
 ```
