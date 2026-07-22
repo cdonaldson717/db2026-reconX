@@ -1,6 +1,6 @@
 # .github/CODEOWNERS
-*           @esther-cheng
-backend/    @esther-cheng @ignaciogalindo3
-frontend/   @esther-cheng @cdonaldson717
-db/         @esther-cheng @chernindana
-.github/    @esther-cheng
+*           @cdonaldson717
+backend/    @cdonaldson717 @ignaciogalindo3
+frontend/   @cdonaldson717 @esther-cheng
+db/         @cdonaldson717 @chernin-dana
+.github/    @cdonaldson717
