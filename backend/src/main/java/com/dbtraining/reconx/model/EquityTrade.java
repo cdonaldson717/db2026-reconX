@@ -15,8 +15,8 @@ import java.util.Objects;
  * WHY:     Eight required fields on a single constructor is unreadable at
  *          the call site. Builder gives named arguments, makes the validity
  *          check a single chokepoint, and the object stays immutable.
- * OBSERVE: Calling build() with a missing required field throws
- *          IllegalStateException — verified by EquityTradeTest.
+ * OBSERVE: Calling build() with a missing required field throws a named
+ *          NullPointerException — verified by EquityTradeTest.
  * HINT:    Same shape applied to FXTrade/BondTrade/DerivativeTrade.
  * ============================================================================
  *
@@ -94,12 +94,25 @@ public final class EquityTrade extends Trade implements TradeType {
         public Builder counterpartyId(long v)         { this.counterpartyId = v;  return this; }
 
         public EquityTrade build() {
-            // TODO(TICKET-ADV019):
-            //   - Objects.requireNonNull each required field (tradeRef, instrumentSymbol,
-            //     quantity, price, currency, side, tradeDate).
-            //   - quantity and price must be > 0 (IllegalStateException otherwise).
-            //   - return new EquityTrade(this).
-            throw new UnsupportedOperationException("TICKET-ADV019");
+            Objects.requireNonNull(tradeRef, "tradeRef");
+            Objects.requireNonNull(instrumentSymbol, "instrumentSymbol");
+            Objects.requireNonNull(quantity, "quantity");
+            Objects.requireNonNull(price, "price");
+            Objects.requireNonNull(currency, "currency");
+            Objects.requireNonNull(side, "side");
+            Objects.requireNonNull(tradeDate, "tradeDate");
+
+            if (instrumentSymbol.isBlank()) {
+                throw new IllegalStateException("instrumentSymbol must not be blank");
+            }
+            if (quantity.signum() <= 0) {
+                throw new IllegalStateException("quantity must be > 0");
+            }
+            if (price.signum() <= 0) {
+                throw new IllegalStateException("price must be > 0");
+            }
+
+            return new EquityTrade(this);
         }
     }
 }
