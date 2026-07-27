@@ -19,39 +19,28 @@ import java.util.Objects;
  * OBSERVE: notional().currency() == ccy2; .amount() == notionalCcy1 * fxRate.
  * ============================================================================
  */
-public final class FXTrade implements TradeType {
+public final class FXTrade extends Trade implements TradeType {
 
-    private final TradeRef tradeRef;
     private final Currency ccy1;
     private final Currency ccy2;
     private final BigDecimal notionalCcy1;
     private final BigDecimal fxRate;
     private final Side side;
-    private final LocalDate tradeDate;
     private final long counterpartyId;
 
     private FXTrade(Builder b) {
-        this.tradeRef       = b.tradeRef;
+        super(b.tradeRef, new Money(b.notionalCcy1.multiply(b.fxRate), b.ccy2), b.tradeDate);
         this.ccy1           = b.ccy1;
         this.ccy2           = b.ccy2;
         this.notionalCcy1   = b.notionalCcy1;
         this.fxRate         = b.fxRate;
         this.side           = b.side;
-        this.tradeDate      = b.tradeDate;
         this.counterpartyId = b.counterpartyId;
     }
 
     public static Builder builder() { return new Builder(); }
 
-    @Override public TradeRef tradeRef()     { return tradeRef; }
-    @Override public LocalDate tradeDate()   { return tradeDate; }
     @Override public AssetClass assetClass() { return AssetClass.FX; }
-
-    /** Notional in ccy2 = notionalCcy1 * fxRate. */
-    @Override public Money notional() {
-        // TODO(TICKET-ADV020): return new Money(notionalCcy1 * fxRate, ccy2).
-        throw new UnsupportedOperationException("TICKET-ADV020");
-    }
 
     public Currency ccy1()           { return ccy1; }
     public Currency ccy2()           { return ccy2; }

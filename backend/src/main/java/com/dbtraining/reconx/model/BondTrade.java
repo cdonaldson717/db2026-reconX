@@ -15,41 +15,30 @@ import java.util.Objects;
  *          Modelling them on the trade is the simplest path for the demo.
  * ============================================================================
  */
-public final class BondTrade implements TradeType {
+public final class BondTrade extends Trade implements TradeType {
 
-    private final TradeRef tradeRef;
     private final String isin;
     private final BigDecimal faceValue;
     private final BigDecimal couponRate;
     private final LocalDate maturityDate;
     private final Currency currency;
     private final Side side;
-    private final LocalDate tradeDate;
     private final long counterpartyId;
 
     private BondTrade(Builder b) {
-        this.tradeRef       = b.tradeRef;
+        super(b.tradeRef, new Money(b.faceValue, b.currency), b.tradeDate);
         this.isin           = b.isin;
         this.faceValue      = b.faceValue;
         this.couponRate     = b.couponRate;
         this.maturityDate   = b.maturityDate;
         this.currency       = b.currency;
         this.side           = b.side;
-        this.tradeDate      = b.tradeDate;
         this.counterpartyId = b.counterpartyId;
     }
 
     public static Builder builder() { return new Builder(); }
 
-    @Override public TradeRef tradeRef()     { return tradeRef; }
-    @Override public LocalDate tradeDate()   { return tradeDate; }
     @Override public AssetClass assetClass() { return AssetClass.BOND; }
-
-    /** Notional = faceValue in the bond's currency. */
-    @Override public Money notional() {
-        // TODO(TICKET-ADV021): return new Money(faceValue, currency).
-        throw new UnsupportedOperationException("TICKET-ADV021");
-    }
 
     public String isin()              { return isin; }
     public BigDecimal faceValue()     { return faceValue; }
