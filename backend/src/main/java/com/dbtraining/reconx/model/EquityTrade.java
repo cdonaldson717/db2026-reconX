@@ -15,47 +15,36 @@ import java.util.Objects;
  * WHY:     Eight required fields on a single constructor is unreadable at
  *          the call site. Builder gives named arguments, makes the validity
  *          check a single chokepoint, and the object stays immutable.
- * OBSERVE: Calling build() with a missing required field throws
- *          IllegalStateException — verified by EquityTradeTest.
+ * OBSERVE: Calling build() with a missing required field throws a named
+ *          NullPointerException — verified by EquityTradeTest.
  * HINT:    Same shape applied to FXTrade/BondTrade/DerivativeTrade.
  * ============================================================================
  *
  * TICKET-ADV028 — equals/hashCode from tradeRef (Object methods on a regular class)
  * TICKET-ADV030 — toString() omits PII, prints reference/symbol/qty/price/side
  */
-public final class EquityTrade implements TradeType {
+public final class EquityTrade extends Trade implements TradeType {
 
-    private final TradeRef tradeRef;
     private final String instrumentSymbol;
     private final BigDecimal quantity;
     private final BigDecimal price;
     private final Currency currency;
     private final Side side;
-    private final LocalDate tradeDate;
     private final long counterpartyId;
 
     private EquityTrade(Builder b) {
-        this.tradeRef         = b.tradeRef;
+        super(b.tradeRef, new Money(b.quantity.multiply(b.price), b.currency), b.tradeDate);
         this.instrumentSymbol = b.instrumentSymbol;
         this.quantity         = b.quantity;
         this.price            = b.price;
         this.currency         = b.currency;
         this.side             = b.side;
-        this.tradeDate        = b.tradeDate;
         this.counterpartyId   = b.counterpartyId;
     }
 
     public static Builder builder() { return new Builder(); }
 
-    @Override public TradeRef tradeRef()    { return tradeRef; }
-    @Override public LocalDate tradeDate()  { return tradeDate; }
     @Override public AssetClass assetClass(){ return AssetClass.EQUITY; }
-
-    /** Notional = quantity * price in the trade currency. */
-    @Override public Money notional() {
-        // TODO(TICKET-ADV019): return new Money(quantity * price, currency).
-        throw new UnsupportedOperationException("TICKET-ADV019");
-    }
 
     public String instrumentSymbol() { return instrumentSymbol; }
     public BigDecimal quantity()     { return quantity; }
@@ -105,12 +94,25 @@ public final class EquityTrade implements TradeType {
         public Builder counterpartyId(long v)         { this.counterpartyId = v;  return this; }
 
         public EquityTrade build() {
-            // TODO(TICKET-ADV019):
-            //   - Objects.requireNonNull each required field (tradeRef, instrumentSymbol,
-            //     quantity, price, currency, side, tradeDate).
-            //   - quantity and price must be > 0 (IllegalStateException otherwise).
-            //   - return new EquityTrade(this).
-            throw new UnsupportedOperationException("TICKET-ADV019");
+            Objects.requireNonNull(tradeRef, "tradeRef");
+            Objects.requireNonNull(instrumentSymbol, "instrumentSymbol");
+            Objects.requireNonNull(quantity, "quantity");
+            Objects.requireNonNull(price, "price");
+            Objects.requireNonNull(currency, "currency");
+            Objects.requireNonNull(side, "side");
+            Objects.requireNonNull(tradeDate, "tradeDate");
+
+            if (instrumentSymbol.isBlank()) {
+                throw new IllegalStateException("instrumentSymbol must not be blank");
+            }
+            if (quantity.signum() <= 0) {
+                throw new IllegalStateException("quantity must be > 0");
+            }
+            if (price.signum() <= 0) {
+                throw new IllegalStateException("price must be > 0");
+            }
+
+            return new EquityTrade(this);
         }
     }
 }

@@ -1,16 +1,33 @@
 -- ============================================================================
--- TICKET-ADV010 — VWAP per instrument per day (window function)
+-- TICKET-ADV010 — Per-trade detail with daily instrument VWAP
 -- ============================================================================
-SELECT DISTINCT
-    t.instrument_id,
-    t.trade_date,
-    SUM(t.price * t.quantity) OVER (PARTITION BY t.instrument_id, t.trade_date)
-        / NULLIF(SUM(t.quantity) OVER (PARTITION BY t.instrument_id, t.trade_date), 0)
-            AS vwap
-FROM trades t
-WHERE t.deleted_at IS NULL
-  AND t.asset_class = 'EQUITY'
-ORDER BY t.trade_date DESC, t.instrument_id;
+SELECT
+    tr.trade_ref,
+    tr.trade_date,
+    ins.symbol,
+    tr.quantity,
+    tr.price,
+    tr.price * tr.quantity AS trade_notional,
+    SUM(tr.price * tr.quantity) OVER daily_instrument
+        / NULLIF(SUM(tr.quantity) OVER daily_instrument, 0) AS daily_vwap,
+    ROW_NUMBER() OVER (
+        PARTITION BY tr.instrument_id, tr.trade_date
+        ORDER BY tr.created_at, tr.id
+    ) AS trade_number,
+    SUM(tr.quantity) OVER (
+        PARTITION BY tr.instrument_id, tr.trade_date
+        ORDER BY tr.created_at, tr.id
+        ROWS UNBOUNDED PRECEDING
+    ) AS running_quantity
+FROM trades AS tr
+INNER JOIN instruments AS ins ON ins.id = tr.instrument_id
+WHERE tr.deleted_at IS NULL
+  AND tr.trade_date >= DATE '2026-06-01'
+  AND tr.trade_date < DATE '2026-07-01'
+WINDOW daily_instrument AS (
+    PARTITION BY tr.instrument_id, tr.trade_date
+)
+ORDER BY ins.symbol, tr.trade_date, tr.created_at, tr.id;
 
 
 -- ============================================================================
@@ -59,8 +76,8 @@ REFRESH MATERIALIZED VIEW CONCURRENTLY mv_daily_recon_summary;
 
 
 -- ============================================================================
--- ADV009 — JSONB lookup: which instruments have sector = 'Banking'?
+-- ADV009 — JSONB containment lookup (supported by jsonb_path_ops)
 -- ============================================================================
 SELECT id, symbol, metadata
 FROM instruments
-WHERE metadata @> '{"sector":"Banking"}'::jsonb;
+WHERE metadata @> '{"classification":{"sector":"Technology"}}'::jsonb;
