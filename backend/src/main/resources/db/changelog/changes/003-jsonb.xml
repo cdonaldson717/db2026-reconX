@@ -20,7 +20,10 @@
 
     <changeSet id="003-jsonb-on-instruments" author="reconx-team">
         <preConditions onFail="MARK_RAN">
-            <dbms type="postgresql"/>
+            <and>
+                <dbms type="postgresql"/>
+                <not><columnExists tableName="instruments" columnName="metadata"/></not>
+            </and>
         </preConditions>
         <sql>
             ALTER TABLE instruments
