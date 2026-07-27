@@ -32,6 +32,7 @@
 /Users/caleb_m_donaldson/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/model/Money.java
 /Users/caleb_m_donaldson/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/model/ReconciliationRule.java
 /Users/caleb_m_donaldson/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/model/Side.java
+/Users/caleb_m_donaldson/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/model/Trade.java
 /Users/caleb_m_donaldson/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/model/TradeFactory.java
 /Users/caleb_m_donaldson/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/model/TradeRef.java
 /Users/caleb_m_donaldson/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/model/TradeType.java
