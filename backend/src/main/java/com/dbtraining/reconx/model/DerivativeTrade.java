@@ -12,6 +12,8 @@ import java.util.Objects;
  * WHAT:    Option/derivative trade — underlying, strike, expiry, optionType.
  * HOW:     Same builder pattern. notional() = strike * quantity in the
  *          trade's currency (simplified — real derivatives use delta-adjusted).
+ *          Expiry is validated against tradeDate, not the current date, so an
+ *          expired derivative remains a valid historical trade record.
  * ============================================================================
  */
 public final class DerivativeTrade extends Trade implements TradeType {
@@ -53,12 +55,10 @@ public final class DerivativeTrade extends Trade implements TradeType {
     public long counterpartyId()     { return counterpartyId; }
 
     @Override public boolean equals(Object o) {
-        // TODO(TICKET-ADV028): pattern-match on DerivativeTrade and compare tradeRef.
-        throw new UnsupportedOperationException("TICKET-ADV028");
+        return (o instanceof DerivativeTrade other) && tradeRef().equals(other.tradeRef());
     }
     @Override public int hashCode() {
-        // TODO(TICKET-ADV028): hash from tradeRef.
-        throw new UnsupportedOperationException("TICKET-ADV028");
+        return tradeRef().hashCode();
     }
 
     @Override public String toString() {
@@ -102,6 +102,20 @@ public final class DerivativeTrade extends Trade implements TradeType {
             if (quantity.signum() <= 0) throw new IllegalStateException("quantity must be > 0");
             if (!expiry.isAfter(tradeDate))
                 throw new IllegalStateException("expiry must be after tradeDate");
+
+            if (underlying.isBlank()) {
+                throw new IllegalStateException("underlying must not be blank");
+            }
+            if (strike.signum() <= 0) {
+                throw new IllegalStateException("strike must be > 0");
+            }
+            if (quantity.signum() <= 0) {
+                throw new IllegalStateException("quantity must be > 0");
+            }
+            if (!expiry.isAfter(tradeDate)) {
+                throw new IllegalStateException("expiry must be after tradeDate");
+            }
+
             return new DerivativeTrade(this);
         }
     }
