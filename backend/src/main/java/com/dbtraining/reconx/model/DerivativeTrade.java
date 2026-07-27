@@ -14,11 +14,10 @@ import java.util.Objects;
  *          trade's currency (simplified — real derivatives use delta-adjusted).
  * ============================================================================
  */
-public final class DerivativeTrade implements TradeType {
+public final class DerivativeTrade extends Trade implements TradeType {
 
     public enum OptionType { CALL, PUT }
 
-    private final TradeRef tradeRef;
     private final String underlying;
     private final BigDecimal strike;
     private final BigDecimal quantity;
@@ -26,11 +25,10 @@ public final class DerivativeTrade implements TradeType {
     private final OptionType optionType;
     private final Currency currency;
     private final Side side;
-    private final LocalDate tradeDate;
     private final long counterpartyId;
 
     private DerivativeTrade(Builder b) {
-        this.tradeRef       = b.tradeRef;
+        super(b.tradeRef, new Money(b.strike.multiply(b.quantity), b.currency), b.tradeDate);
         this.underlying     = b.underlying;
         this.strike         = b.strike;
         this.quantity       = b.quantity;
@@ -38,21 +36,12 @@ public final class DerivativeTrade implements TradeType {
         this.optionType     = b.optionType;
         this.currency       = b.currency;
         this.side           = b.side;
-        this.tradeDate      = b.tradeDate;
         this.counterpartyId = b.counterpartyId;
     }
 
     public static Builder builder() { return new Builder(); }
 
-    @Override public TradeRef tradeRef()     { return tradeRef; }
-    @Override public LocalDate tradeDate()   { return tradeDate; }
     @Override public AssetClass assetClass() { return AssetClass.DERIVATIVE; }
-
-    /** Simplified notional = strike * quantity in the trade currency. */
-    @Override public Money notional() {
-        // TODO(TICKET-ADV022): return new Money(strike * quantity, currency).
-        throw new UnsupportedOperationException("TICKET-ADV022");
-    }
 
     public String underlying()       { return underlying; }
     public BigDecimal strike()       { return strike; }

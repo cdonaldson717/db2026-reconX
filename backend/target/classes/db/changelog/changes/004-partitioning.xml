@@ -29,6 +29,7 @@
                 <dbms type="postgresql"/>
                 <tableExists tableName="trades"/>
             </and>
+            <dbms type="postgresql"/>
         </preConditions>
         <comment>Placeholder: students rebuild this in ADV007. Trainer copy
                  ships a no-op so dev/uat boot cleanly.</comment>
