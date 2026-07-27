@@ -1,8 +1,12 @@
 package com.dbtraining.reconx.model;
 
+import com.dbtraining.reconx.exception.InvalidTradeException;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * ============================================================================
@@ -26,52 +30,103 @@ public final class TradeFactory {
 
     private TradeFactory() { }
 
-    /**
-     * TODO(TICKET-ADV023):
-     *   1. Parse assetClass string into TradeType.AssetClass enum (toUpperCase first).
-     *   2. switch on the enum and dispatch to the matching equity/fx/bond/derivative
-     *      helper below.
-     *   3. The switch must be exhaustive — every TradeType.AssetClass case handled.
-     */
     public static TradeType create(String assetClass, Map<String, Object> p) {
-        throw new UnsupportedOperationException("TICKET-ADV023");
+        try {
+            String discriminator = Objects.requireNonNull(assetClass, "assetClass")
+                    .toUpperCase(Locale.ROOT);
+            Map<String, Object> parameters = Objects.requireNonNull(p, "parameters");
+            TradeType.AssetClass parsed = TradeType.AssetClass.valueOf(discriminator);
+
+            return switch (parsed) {
+                case EQUITY -> equity(parameters);
+                case FX -> fx(parameters);
+                case BOND -> bond(parameters);
+                case DERIVATIVE -> derivative(parameters);
+            };
+        } catch (InvalidTradeException ex) {
+            throw ex;
+        } catch (RuntimeException ex) {
+            String detail = ex.getMessage() == null ? ex.getClass().getSimpleName() : ex.getMessage();
+            throw new InvalidTradeException("Invalid trade payload: " + detail);
+        }
     }
 
-    /**
-     * TODO(TICKET-ADV023):
-     *   Build an EquityTrade from the map. Expected keys: tradeRef, symbol,
-     *   quantity, price, currency, side, tradeDate, counterpartyId.
-     */
     private static EquityTrade equity(Map<String, Object> p) {
-        throw new UnsupportedOperationException("TICKET-ADV023");
+        return EquityTrade.builder()
+                .tradeRef(TradeRef.of(string(p, "tradeRef")))
+                .instrumentSymbol(string(p, "symbol"))
+                .quantity(decimal(p, "quantity"))
+                .price(decimal(p, "price"))
+                .currency(string(p, "currency"))
+                .side(enumValue(p, "side", Side.class))
+                .tradeDate(date(p, "tradeDate"))
+                .counterpartyId(number(p, "counterpartyId").longValue())
+                .build();
     }
 
-    /**
-     * TODO(TICKET-ADV023):
-     *   Build an FXTrade from the map. Expected keys: tradeRef, ccy1, ccy2,
-     *   notionalCcy1, fxRate, side, tradeDate, counterpartyId.
-     */
     private static FXTrade fx(Map<String, Object> p) {
-        throw new UnsupportedOperationException("TICKET-ADV023");
+        return FXTrade.builder()
+                .tradeRef(TradeRef.of(string(p, "tradeRef")))
+                .ccy1(string(p, "ccy1"))
+                .ccy2(string(p, "ccy2"))
+                .notionalCcy1(decimal(p, "notionalCcy1"))
+                .fxRate(decimal(p, "fxRate"))
+                .side(enumValue(p, "side", Side.class))
+                .tradeDate(date(p, "tradeDate"))
+                .counterpartyId(number(p, "counterpartyId").longValue())
+                .build();
     }
 
-    /**
-     * TODO(TICKET-ADV023):
-     *   Build a BondTrade from the map. Expected keys: tradeRef, isin,
-     *   faceValue, couponRate, maturityDate, currency, side, tradeDate,
-     *   counterpartyId.
-     */
     private static BondTrade bond(Map<String, Object> p) {
-        throw new UnsupportedOperationException("TICKET-ADV023");
+        return BondTrade.builder()
+                .tradeRef(TradeRef.of(string(p, "tradeRef")))
+                .isin(string(p, "isin"))
+                .faceValue(decimal(p, "faceValue"))
+                .couponRate(decimal(p, "couponRate"))
+                .maturityDate(date(p, "maturityDate"))
+                .currency(string(p, "currency"))
+                .side(enumValue(p, "side", Side.class))
+                .tradeDate(date(p, "tradeDate"))
+                .counterpartyId(number(p, "counterpartyId").longValue())
+                .build();
     }
 
-    /**
-     * TODO(TICKET-ADV023):
-     *   Build a DerivativeTrade from the map. Expected keys: tradeRef,
-     *   underlying, strike, quantity, expiry, optionType, currency, side,
-     *   tradeDate, counterpartyId.
-     */
     private static DerivativeTrade derivative(Map<String, Object> p) {
-        throw new UnsupportedOperationException("TICKET-ADV023");
+        return DerivativeTrade.builder()
+                .tradeRef(TradeRef.of(string(p, "tradeRef")))
+                .underlying(string(p, "underlying"))
+                .strike(decimal(p, "strike"))
+                .quantity(decimal(p, "quantity"))
+                .expiry(date(p, "expiry"))
+                .optionType(enumValue(p, "optionType", DerivativeTrade.OptionType.class))
+                .currency(string(p, "currency"))
+                .side(enumValue(p, "side", Side.class))
+                .tradeDate(date(p, "tradeDate"))
+                .counterpartyId(number(p, "counterpartyId").longValue())
+                .build();
+    }
+
+    private static Object required(Map<String, Object> p, String key) {
+        return Objects.requireNonNull(p.get(key), key);
+    }
+
+    private static String string(Map<String, Object> p, String key) {
+        return (String) required(p, key);
+    }
+
+    private static Number number(Map<String, Object> p, String key) {
+        return (Number) required(p, key);
+    }
+
+    private static BigDecimal decimal(Map<String, Object> p, String key) {
+        return new BigDecimal(required(p, key).toString());
+    }
+
+    private static LocalDate date(Map<String, Object> p, String key) {
+        return LocalDate.parse(string(p, key));
+    }
+
+    private static <E extends Enum<E>> E enumValue(Map<String, Object> p, String key, Class<E> type) {
+        return Enum.valueOf(type, string(p, key));
     }
 }
