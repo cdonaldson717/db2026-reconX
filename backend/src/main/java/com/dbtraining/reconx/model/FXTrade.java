@@ -9,8 +9,8 @@ import java.util.Objects;
  * ============================================================================
  * TICKET-ADV020 — FXTrade with Builder pattern
  *
- * WHAT:    FX spot/forward trade — two currencies, a notional in ccy1, and
- *          an fxRate.
+ * WHAT:    FX spot/forward trade — two currencies, a notional denominated in
+ *          ccy1, and an fxRate expressed as units of ccy2 per unit of ccy1.
  * HOW:     Same builder pattern as EquityTrade. notional() converts to ccy2
  *          via fxRate so reconciliation rolls up in the trade's quote ccy.
  * WHY:     FX has two natural sides — a EUR/USD trade is BOTH a buy of EUR
@@ -81,12 +81,25 @@ public final class FXTrade extends Trade implements TradeType {
         public Builder counterpartyId(long v)      { this.counterpartyId = v; return this; }
 
         public FXTrade build() {
-            // TODO(TICKET-ADV020):
-            //   - Objects.requireNonNull each required field.
-            //   - ccy1 must differ from ccy2 (IllegalStateException otherwise).
-            //   - fxRate must be > 0.
-            //   - return new FXTrade(this).
-            throw new UnsupportedOperationException("TICKET-ADV020");
+            Objects.requireNonNull(tradeRef, "tradeRef");
+            Objects.requireNonNull(ccy1, "ccy1");
+            Objects.requireNonNull(ccy2, "ccy2");
+            Objects.requireNonNull(notionalCcy1, "notionalCcy1");
+            Objects.requireNonNull(fxRate, "fxRate");
+            Objects.requireNonNull(side, "side");
+            Objects.requireNonNull(tradeDate, "tradeDate");
+
+            if (ccy1.equals(ccy2)) {
+                throw new IllegalStateException("ccy1 and ccy2 must differ");
+            }
+            if (notionalCcy1.signum() <= 0) {
+                throw new IllegalStateException("notionalCcy1 must be > 0");
+            }
+            if (fxRate.signum() <= 0) {
+                throw new IllegalStateException("fxRate must be > 0");
+            }
+
+            return new FXTrade(this);
         }
     }
 }
