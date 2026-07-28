@@ -3,6 +3,7 @@ package com.dbtraining.reconx.dto;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * TICKET-ADV053 — Tiny wrapper that flattens Spring Data Page<T> into a
@@ -15,7 +16,7 @@ public record PagedResponse<T>(
         long totalElements,
         int totalPages
 ) {
-    public static <S, T> PagedResponse<T> from(Page<S> src, java.util.function.Function<S, T> mapper) {
+    public static <S, T> PagedResponse<T> of(Page<S> src, Function<S, T> mapper) {
         return new PagedResponse<>(
                 src.getContent().stream().map(mapper).toList(),
                 src.getNumber(),
@@ -23,5 +24,12 @@ public record PagedResponse<T>(
                 src.getTotalElements(),
                 src.getTotalPages()
         );
+    }
+
+    /**
+     * Backwards-compatible alias retained while callers migrate to {@link #of(Page, Function)}.
+     */
+    public static <S, T> PagedResponse<T> from(Page<S> src, Function<S, T> mapper) {
+        return of(src, mapper);
     }
 }
