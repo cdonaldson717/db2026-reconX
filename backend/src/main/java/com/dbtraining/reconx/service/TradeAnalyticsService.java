@@ -47,7 +47,30 @@ public class TradeAnalyticsService {
         //   each bucket compute SUM(price * qty) / SUM(qty) using BigDecimal
         //   with RoundingMode.HALF_UP. Return BigDecimal.ZERO when totalQty is 0
         //   (avoid ArithmeticException on division by zero).
-        throw new UnsupportedOperationException("TICKET-ADV035");
+        Map<String, List<EquityTrade>> tradesByInstrument = equityTrades.stream()
+                .collect(Collectors.groupingBy(EquityTrade::instrumentSymbol));
+
+        return tradesByInstrument.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> {
+                            BigDecimal totalQuantity = entry.getValue().stream()
+                                    .map(EquityTrade::quantity)
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                            if (totalQuantity.signum() == 0) {
+                                return BigDecimal.ZERO;
+                            }
+
+                            BigDecimal weightedTotal = entry.getValue().stream()
+                                    .map(trade -> trade.price().multiply(trade.quantity()))
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                            return weightedTotal.divide(
+                                    totalQuantity,
+                                    4,
+                                    RoundingMode.HALF_UP);
+                        }));
     }
 
     /** TICKET-ADV036 — P&L per instrument symbol (sign by Side). */
