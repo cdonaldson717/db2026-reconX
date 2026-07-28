@@ -17,8 +17,8 @@ spring:
       enabled: true
       path: /h2
 
-  # H2 doesn't ship a JSONB type — Liquibase preconditions in the changelog skip
-  # the JSONB GIN-index step on H2 (see 003-jsonb.xml).
+  # PostgreSQL mode lets H2 accept the JSONB column; the PostgreSQL-only GIN
+  # index remains guarded by Liquibase preconditions (see 003-jsonb.xml).
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     properties:

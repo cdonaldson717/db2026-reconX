@@ -6,8 +6,8 @@ import org.hibernate.Hibernate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,8 +16,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest(properties = {
         "spring.liquibase.enabled=false",
-        "spring.jpa.hibernate.ddl-auto=create-drop"
+        "spring.jpa.hibernate.ddl-auto=create-drop",
+        "spring.datasource.url=jdbc:h2:mem:trade-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1"
 })
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(JpaConfig.class)
 class TradeJpaTest {
 
@@ -33,10 +35,10 @@ class TradeJpaTest {
         entityManager.persist(counterparty);
 
         Instrument instrument = new Instrument();
-        ReflectionTestUtils.setField(instrument, "symbol", "TEST");
-        ReflectionTestUtils.setField(instrument, "name", "Test Instrument");
-        ReflectionTestUtils.setField(instrument, "assetClass", "EQUITY");
-        ReflectionTestUtils.setField(instrument, "currency", "USD");
+        instrument.setSymbol("TEST");
+        instrument.setName("Test Instrument");
+        instrument.setAssetClass(AssetClass.EQUITY);
+        instrument.setCurrency("USD");
         entityManager.persist(instrument);
 
         Trade trade = new Trade();
