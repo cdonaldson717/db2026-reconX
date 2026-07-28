@@ -7,9 +7,9 @@ import java.util.Objects;
 
 /**
  * ============================================================================
- * TICKET-ADV021 — BondTrade with Builder pattern
+ * TICKET-ADV021 - BondTrade with Builder pattern
  *
- * WHAT:    Fixed-income trade — couponRate, maturityDate, faceValue, isin.
+ * WHAT:    Fixed-income trade - couponRate, maturityDate, faceValue, isin.
  * HOW:     Same builder pattern. notional() = faceValue (in the bond's ccy).
  * WHY:     Bonds need couponRate/maturity for downstream cashflow modelling.
  *          Modelling them on the trade is the simplest path for the demo.
@@ -49,17 +49,19 @@ public final class BondTrade extends Trade implements TradeType {
     public long counterpartyId()      { return counterpartyId; }
 
     @Override public boolean equals(Object o) {
-        // TODO(TICKET-ADV028): pattern-match on BondTrade and compare tradeRef.
-        throw new UnsupportedOperationException("TICKET-ADV028");
+        return (o instanceof BondTrade other) && tradeRef().equals(other.tradeRef());
     }
+
     @Override public int hashCode() {
-        // TODO(TICKET-ADV028): hash from tradeRef.
-        throw new UnsupportedOperationException("TICKET-ADV028");
+        return tradeRef().hashCode();
     }
 
     @Override public String toString() {
-        // TODO(TICKET-ADV030): "BondTrade[ref=..., isin=..., face=... CCY, coupon=..., maturity=..., side=...]"
-        throw new UnsupportedOperationException("TICKET-ADV030");
+        // NOTE: counterpartyId is intentionally omitted to avoid leaking PII in logs.
+        return "BondTrade[ref=%s, isin=%s, face=%s %s, coupon=%s, maturity=%s, side=%s]"
+                .formatted(tradeRef(), isin, faceValue.toPlainString(),
+                        currency.getCurrencyCode(), couponRate.toPlainString(),
+                        maturityDate, side);
     }
 
     public static final class Builder {
@@ -71,22 +73,40 @@ public final class BondTrade extends Trade implements TradeType {
         private Side side;
         private long counterpartyId;
 
-        public Builder tradeRef(TradeRef v)        { this.tradeRef = v; return this; }
-        public Builder isin(String v)              { this.isin = v; return this; }
-        public Builder faceValue(BigDecimal v)     { this.faceValue = v; return this; }
-        public Builder couponRate(BigDecimal v)    { this.couponRate = v; return this; }
-        public Builder maturityDate(LocalDate v)   { this.maturityDate = v; return this; }
-        public Builder currency(String code)       { this.currency = Currency.getInstance(code); return this; }
-        public Builder side(Side v)                { this.side = v; return this; }
-        public Builder tradeDate(LocalDate v)      { this.tradeDate = v; return this; }
-        public Builder counterpartyId(long v)      { this.counterpartyId = v; return this; }
+        public Builder tradeRef(TradeRef v) { this.tradeRef = v; return this; }
+        public Builder isin(String v) { this.isin = v; return this; }
+        public Builder faceValue(BigDecimal v) { this.faceValue = v; return this; }
+        public Builder couponRate(BigDecimal v) { this.couponRate = v; return this; }
+        public Builder maturityDate(LocalDate v) { this.maturityDate = v; return this; }
+        public Builder currency(String code) { this.currency = Currency.getInstance(code); return this; }
+        public Builder side(Side v) { this.side = v; return this; }
+        public Builder tradeDate(LocalDate v) { this.tradeDate = v; return this; }
+        public Builder counterpartyId(long v) { this.counterpartyId = v; return this; }
 
         public BondTrade build() {
-            // TODO(TICKET-ADV021):
-            //   - Objects.requireNonNull each required field.
-            //   - maturityDate must not be before tradeDate (IllegalStateException otherwise).
-            //   - return new BondTrade(this).
-            throw new UnsupportedOperationException("TICKET-ADV021");
+            Objects.requireNonNull(tradeRef, "tradeRef");
+            Objects.requireNonNull(isin, "isin");
+            Objects.requireNonNull(faceValue, "faceValue");
+            Objects.requireNonNull(couponRate, "couponRate");
+            Objects.requireNonNull(maturityDate, "maturityDate");
+            Objects.requireNonNull(currency, "currency");
+            Objects.requireNonNull(side, "side");
+            Objects.requireNonNull(tradeDate, "tradeDate");
+
+            if (isin.length() != 12) {
+                throw new IllegalStateException("isin must be exactly 12 characters");
+            }
+            if (faceValue.signum() <= 0) {
+                throw new IllegalStateException("faceValue must be > 0");
+            }
+            if (couponRate.signum() < 0) {
+                throw new IllegalStateException("couponRate must be >= 0");
+            }
+            if (!maturityDate.isAfter(tradeDate)) {
+                throw new IllegalStateException("maturityDate must be after tradeDate");
+            }
+
+            return new BondTrade(this);
         }
     }
 }

@@ -2,6 +2,8 @@
 # TICKET-ADV049 — dev profile: H2 in-memory + Kafka can be disabled if not running
 # =============================================================================
 spring:
+  liquibase:
+    contexts: dev
   datasource:
     # H2 PostgreSQL-compat mode. NON_KEYWORDS=USER lets us name a JPA entity
     # `users` without H2 treating it as a reserved word; CASE_INSENSITIVE_IDENTIFIERS

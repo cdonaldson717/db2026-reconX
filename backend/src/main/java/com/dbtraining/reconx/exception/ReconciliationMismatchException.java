@@ -1,6 +1,26 @@
 package com.dbtraining.reconx.exception;
 
-/** TICKET-ADV025 — 422 Unprocessable: internal vs external trade do not match. */
+/**
+ * Signals that two trades being reconciled differ beyond the active tolerance rule.
+ */
 public class ReconciliationMismatchException extends ReconException {
-    public ReconciliationMismatchException(String message) { super(message); }
+
+    /**
+     * Create a mismatch error with the comparison detail.
+     *
+     * @param message the reason the reconciliation comparison failed.
+     */
+    public ReconciliationMismatchException(String message) {
+        super(message);
+    }
+
+    /**
+     * Create a mismatch error with detail plus the underlying cause.
+     *
+     * @param message the high-level reconciliation mismatch description.
+     * @param cause the underlying exception that triggered the mismatch handling.
+     */
+    public ReconciliationMismatchException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
