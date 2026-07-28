@@ -39,6 +39,10 @@ public class ReconciliationEngine {
     public List<ReconResult> reconcile(List<TradeType> internal,
                                        List<TradeType> external,
                                        ReconciliationRule rule) {
+        // TICKET-ADV033: build a Map<tradeRef, TradeType> from `external`.
+        // O(1) map lookups avoid O(n*m) nested iteration. Then parallelStream
+        // over `internal` and call matchOne(in, externalByRef.get(...), rule)
+        // for each trade. Null and empty inputs are handled without throwing.
         if (internal == null || internal.isEmpty()) {
             return List.of();
         }
@@ -76,6 +80,9 @@ public class ReconciliationEngine {
     }
 
     private ReconResult matchOne(TradeType internal, TradeType external, ReconciliationRule rule) {
+        // TICKET-ADV033: a missing external trade becomes a MISSING_EXTERNAL
+        // break. Otherwise compare the price/quantity pairs with the supplied
+        // rule and return either a match or a VALUE_MISMATCH break.
         String tradeRef = internal.tradeRef().value();
         if (external == null) {
             return ReconResult.breakResult(
@@ -107,6 +114,8 @@ public class ReconciliationEngine {
 
     /** TICKET-ADV018 — exhaustive switch over the sealed hierarchy. */
     private BigDecimal[] priceQty(TradeType t) {
+        // Extract the comparable price and quantity values for every permitted
+        // TradeType. The sealed hierarchy makes this switch exhaustive.
         return switch (t) {
             case com.dbtraining.reconx.model.EquityTrade equity ->
                     new BigDecimal[]{equity.price(), equity.quantity()};
