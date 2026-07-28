@@ -31,13 +31,13 @@ public final class DerivativeTrade extends Trade implements TradeType {
 
     private DerivativeTrade(Builder b) {
         super(b.tradeRef, new Money(b.strike.multiply(b.quantity), b.currency), b.tradeDate);
-        this.underlying = b.underlying;
-        this.strike = b.strike;
-        this.quantity = b.quantity;
-        this.expiry = b.expiry;
-        this.optionType = b.optionType;
-        this.currency = b.currency;
-        this.side = b.side;
+        this.underlying     = b.underlying;
+        this.strike         = b.strike;
+        this.quantity       = b.quantity;
+        this.expiry         = b.expiry;
+        this.optionType     = b.optionType;
+        this.currency       = b.currency;
+        this.side           = b.side;
         this.counterpartyId = b.counterpartyId;
     }
 
@@ -45,14 +45,14 @@ public final class DerivativeTrade extends Trade implements TradeType {
 
     @Override public AssetClass assetClass() { return AssetClass.DERIVATIVE; }
 
-    public String underlying() { return underlying; }
-    public BigDecimal strike() { return strike; }
-    public BigDecimal quantity() { return quantity; }
-    public LocalDate expiry() { return expiry; }
-    public OptionType optionType() { return optionType; }
-    public Currency currency() { return currency; }
-    public Side side() { return side; }
-    public long counterpartyId() { return counterpartyId; }
+    public String underlying()       { return underlying; }
+    public BigDecimal strike()       { return strike; }
+    public BigDecimal quantity()     { return quantity; }
+    public LocalDate expiry()        { return expiry; }
+    public OptionType optionType()   { return optionType; }
+    public Currency currency()       { return currency; }
+    public Side side()               { return side; }
+    public long counterpartyId()     { return counterpartyId; }
 
     @Override public boolean equals(Object o) {
         return (o instanceof DerivativeTrade other) && tradeRef().equals(other.tradeRef());

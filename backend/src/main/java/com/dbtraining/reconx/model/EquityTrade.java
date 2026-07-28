@@ -16,7 +16,7 @@ import java.util.Objects;
  *          the call site. Builder gives named arguments, makes the validity
  *          check a single chokepoint, and the object stays immutable.
  * OBSERVE: Calling build() with a missing required field throws a named
- *          NullPointerException - verified by EquityTradeTest.
+ *          NullPointerException — verified by EquityTradeTest.
  * HINT:    Same shape applied to FXTrade/BondTrade/DerivativeTrade.
  * ============================================================================
  *
@@ -35,16 +35,16 @@ public final class EquityTrade extends Trade implements TradeType {
     private EquityTrade(Builder b) {
         super(b.tradeRef, new Money(b.quantity.multiply(b.price), b.currency), b.tradeDate);
         this.instrumentSymbol = b.instrumentSymbol;
-        this.quantity = b.quantity;
-        this.price = b.price;
-        this.currency = b.currency;
-        this.side = b.side;
-        this.counterpartyId = b.counterpartyId;
+        this.quantity         = b.quantity;
+        this.price            = b.price;
+        this.currency         = b.currency;
+        this.side             = b.side;
+        this.counterpartyId   = b.counterpartyId;
     }
 
     public static Builder builder() { return new Builder(); }
 
-    @Override public AssetClass assetClass() { return AssetClass.EQUITY; }
+    @Override public AssetClass assetClass(){ return AssetClass.EQUITY; }
 
     public String instrumentSymbol() { return instrumentSymbol; }
     public BigDecimal quantity() { return quantity; }
