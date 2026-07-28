@@ -2,6 +2,8 @@ package com.dbtraining.reconx.service;
 
 import com.dbtraining.reconx.dto.ReconResult;
 import com.dbtraining.reconx.model.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -19,10 +21,25 @@ class ReconciliationEngineTest {
 
     private final ReconciliationEngine engine = new ReconciliationEngine();
 
+    @AfterEach
+    void shutDownEngine() {
+        engine.shutdown();
+    }
+
     @Test
+    @DisplayName("exact match on price and quantity returns MATCHED")
     void testReconcile_exactMatch_returnsMatched() {
-        // TODO(TICKET-ADV040): two identical EquityTrades + EXACT rule -> one ReconResult with status MATCHED.
-        org.junit.jupiter.api.Assertions.fail("TICKET-ADV040 not implemented yet");
+        // given
+        EquityTrade internal = equity("EQU-20260603-0001", "100.00", "1000");
+        EquityTrade external = equity("EQU-20260603-0001", "100.00", "1000");
+
+        // when
+        List<ReconResult> out = engine.reconcile(
+                List.of(internal), List.of(external), ReconciliationRule.EXACT);
+
+        // then
+        assertThat(out).hasSize(1);
+        assertThat(out.get(0).status()).isEqualTo(ReconResult.Status.MATCHED);
     }
 
     @ParameterizedTest(name = "price diff {0} stays within 1% tolerance -> MATCHED")
@@ -52,9 +69,18 @@ class ReconciliationEngineTest {
     }
 
     @Test
+    @DisplayName("empty internal input returns no reconciliation results")
     void testReconcile_emptyInternal_returnsEmpty() {
-        // TODO(TICKET-ADV040): empty internal + empty external -> reconcile returns an empty list.
-        org.junit.jupiter.api.Assertions.fail("TICKET-ADV040 not implemented yet");
+        // given
+        List<TradeType> internal = List.of();
+        List<TradeType> external = List.of();
+
+        // when
+        List<ReconResult> out = engine.reconcile(
+                internal, external, ReconciliationRule.EXACT);
+
+        // then
+        assertThat(out).isEmpty();
     }
 
     private EquityTrade equity(String ref, String price, String qty) {
