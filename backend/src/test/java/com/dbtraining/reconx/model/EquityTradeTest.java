@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -37,9 +39,20 @@ class EquityTradeTest {
 
     @Test
     void equality_byTradeRef() {
-        // TODO(TICKET-ADV028): two EquityTrades with the same tradeRef are equal and share hashCode;
-        //                     a third with a different tradeRef is not equal.
-        org.junit.jupiter.api.Assertions.fail("TICKET-ADV028 not implemented yet");
+        EquityTrade first = sampleEquity("EQU-20260603-0001");
+        EquityTrade sameRef = EquityTrade.builder()
+                .tradeRef(TradeRef.of("EQU-20260603-0001"))
+                .instrumentSymbol("SIE.DE")
+                .quantity(new BigDecimal("250"))
+                .price(new BigDecimal("175"))
+                .currency("EUR").side(Side.SELL)
+                .tradeDate(LocalDate.of(2026, 6, 4))
+                .counterpartyId(2L).build();
+        EquityTrade differentRef = sampleEquity("EQU-20260603-0002");
+
+        assertThat(first).isEqualTo(sameRef).hasSameHashCodeAs(sameRef);
+        assertThat(first).isNotEqualTo(differentRef);
+        assertThat(new HashSet<TradeType>(List.of(first, sameRef))).hasSize(1);
     }
 
     private EquityTrade sampleEquity(String ref) {
