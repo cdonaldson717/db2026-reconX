@@ -30,6 +30,17 @@ public final class TradeFactory {
 
     private TradeFactory() { }
 
+    /**
+     * Parse a loosely-typed payload into one concrete {@link TradeType}.
+     *
+     * @param assetClass the asset-class discriminator, matched case-insensitively
+     *                   against {@link TradeType.AssetClass}.
+     * @param p the raw payload map containing the fields required by the chosen trade type.
+     * @return the concrete {@code TradeType} built from the supplied payload.
+     * @throws NullPointerException if {@code assetClass} or {@code p} is {@code null}.
+     * @throws InvalidTradeException if the discriminator is unknown, required fields are missing,
+     *                               or any field cannot be parsed into a valid trade.
+     */
     public static TradeType create(String assetClass, Map<String, Object> p) {
         try {
             String discriminator = Objects.requireNonNull(assetClass, "assetClass")
