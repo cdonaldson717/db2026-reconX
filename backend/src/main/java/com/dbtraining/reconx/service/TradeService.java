@@ -89,6 +89,22 @@ public class TradeService {
         //   TradeSpecifications (hasStatus, tradeDateBetween, hasCounterparty)
         //   via Specification.where(...).and(...) and call
         //   tradeRepo.findAll(spec, pageable). Until JPA is in place, throw.
-        throw new UnsupportedOperationException("TICKET-ADV055");
+        return search(from, to, status, counterpartyId, null, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Trade> search(LocalDate from,
+                              LocalDate to,
+                              String status,
+                              Long counterpartyId,
+                              String refPattern,
+                              Pageable pageable) {
+        Specification<Trade> specification = Specification
+                .where(tradeDateBetween(from, to))
+                .and(hasStatus(status))
+                .and(forCounterparty(counterpartyId))
+                .and(refLike(refPattern));
+
+        return tradeRepo.findAll(specification, pageable);
     }
 }
