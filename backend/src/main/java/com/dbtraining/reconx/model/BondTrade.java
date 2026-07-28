@@ -7,9 +7,9 @@ import java.util.Objects;
 
 /**
  * ============================================================================
- * TICKET-ADV021 — BondTrade with Builder pattern
+ * TICKET-ADV021 - BondTrade with Builder pattern
  *
- * WHAT:    Fixed-income trade — couponRate, maturityDate, faceValue, isin.
+ * WHAT:    Fixed-income trade - couponRate, maturityDate, faceValue, isin.
  * HOW:     Same builder pattern. notional() = faceValue (in the bond's ccy).
  * WHY:     Bonds need couponRate/maturity for downstream cashflow modelling.
  *          Modelling them on the trade is the simplest path for the demo.
@@ -27,12 +27,12 @@ public final class BondTrade extends Trade implements TradeType {
 
     private BondTrade(Builder b) {
         super(b.tradeRef, new Money(b.faceValue, b.currency), b.tradeDate);
-        this.isin           = b.isin;
-        this.faceValue      = b.faceValue;
-        this.couponRate     = b.couponRate;
-        this.maturityDate   = b.maturityDate;
-        this.currency       = b.currency;
-        this.side           = b.side;
+        this.isin = b.isin;
+        this.faceValue = b.faceValue;
+        this.couponRate = b.couponRate;
+        this.maturityDate = b.maturityDate;
+        this.currency = b.currency;
+        this.side = b.side;
         this.counterpartyId = b.counterpartyId;
     }
 
@@ -40,24 +40,28 @@ public final class BondTrade extends Trade implements TradeType {
 
     @Override public AssetClass assetClass() { return AssetClass.BOND; }
 
-    public String isin()              { return isin; }
-    public BigDecimal faceValue()     { return faceValue; }
-    public BigDecimal couponRate()    { return couponRate; }
-    public LocalDate maturityDate()   { return maturityDate; }
-    public Currency currency()        { return currency; }
-    public Side side()                { return side; }
-    public long counterpartyId()      { return counterpartyId; }
+    public String isin() { return isin; }
+    public BigDecimal faceValue() { return faceValue; }
+    public BigDecimal couponRate() { return couponRate; }
+    public LocalDate maturityDate() { return maturityDate; }
+    public Currency currency() { return currency; }
+    public Side side() { return side; }
+    public long counterpartyId() { return counterpartyId; }
 
     @Override public boolean equals(Object o) {
         return (o instanceof BondTrade other) && tradeRef().equals(other.tradeRef());
     }
+
     @Override public int hashCode() {
         return tradeRef().hashCode();
     }
 
     @Override public String toString() {
-        // TODO(TICKET-ADV030): "BondTrade[ref=..., isin=..., face=... CCY, coupon=..., maturity=..., side=...]"
-        throw new UnsupportedOperationException("TICKET-ADV030");
+        // NOTE: counterpartyId is intentionally omitted to avoid leaking PII in logs.
+        return "BondTrade[ref=%s, isin=%s, face=%s %s, coupon=%s, maturity=%s, side=%s]"
+                .formatted(tradeRef(), isin, faceValue.toPlainString(),
+                        currency.getCurrencyCode(), couponRate.toPlainString(),
+                        maturityDate, side);
     }
 
     public static final class Builder {
@@ -69,15 +73,15 @@ public final class BondTrade extends Trade implements TradeType {
         private Side side;
         private long counterpartyId;
 
-        public Builder tradeRef(TradeRef v)        { this.tradeRef = v; return this; }
-        public Builder isin(String v)              { this.isin = v; return this; }
-        public Builder faceValue(BigDecimal v)     { this.faceValue = v; return this; }
-        public Builder couponRate(BigDecimal v)    { this.couponRate = v; return this; }
-        public Builder maturityDate(LocalDate v)   { this.maturityDate = v; return this; }
-        public Builder currency(String code)       { this.currency = Currency.getInstance(code); return this; }
-        public Builder side(Side v)                { this.side = v; return this; }
-        public Builder tradeDate(LocalDate v)      { this.tradeDate = v; return this; }
-        public Builder counterpartyId(long v)      { this.counterpartyId = v; return this; }
+        public Builder tradeRef(TradeRef v) { this.tradeRef = v; return this; }
+        public Builder isin(String v) { this.isin = v; return this; }
+        public Builder faceValue(BigDecimal v) { this.faceValue = v; return this; }
+        public Builder couponRate(BigDecimal v) { this.couponRate = v; return this; }
+        public Builder maturityDate(LocalDate v) { this.maturityDate = v; return this; }
+        public Builder currency(String code) { this.currency = Currency.getInstance(code); return this; }
+        public Builder side(Side v) { this.side = v; return this; }
+        public Builder tradeDate(LocalDate v) { this.tradeDate = v; return this; }
+        public Builder counterpartyId(long v) { this.counterpartyId = v; return this; }
 
         public BondTrade build() {
             Objects.requireNonNull(tradeRef, "tradeRef");
