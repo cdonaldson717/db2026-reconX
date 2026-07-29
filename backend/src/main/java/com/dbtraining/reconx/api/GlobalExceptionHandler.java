@@ -1,6 +1,7 @@
 package com.dbtraining.reconx.api;
 
 import com.dbtraining.reconx.exception.DuplicateTradeRefException;
+import com.dbtraining.reconx.exception.InvalidCredentialsException;
 import com.dbtraining.reconx.exception.ReconException;
 import com.dbtraining.reconx.exception.TradeNotFoundException;
 import org.slf4j.Logger;
@@ -24,6 +25,16 @@ public class GlobalExceptionHandler {
 
     private static final String ERROR_BASE =
             "https://reconx.dbtraining.com/errors/";
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED, exception.getMessage());
+        problem.setType(URI.create(ERROR_BASE + "invalid-credentials"));
+        problem.setTitle("Unauthorized");
+        problem.setProperty("timestamp", OffsetDateTime.now());
+        return problem;
+    }
 
     @ExceptionHandler(TradeNotFoundException.class)
     public ProblemDetail handleTradeNotFound(

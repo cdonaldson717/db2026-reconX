@@ -18,6 +18,7 @@
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/dto/TradeResponse.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/exception/DuplicateTradeRefException.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/exception/GlobalExceptionHandler.java
+/Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/exception/InvalidCredentialsException.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/exception/InvalidTradeException.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/exception/ReconException.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/exception/ReconciliationMismatchException.java
