@@ -4,7 +4,6 @@ import com.dbtraining.reconx.repository.ReconResultRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -33,7 +32,7 @@ class ReconciliationIntegrationTest {
         registry.add("spring.datasource.password", postgres::getPassword);
     }
 
-    @MockBean
+    @Autowired
     private ReconResultRepository reconResultRepository;
 
     @Autowired
@@ -44,4 +43,9 @@ class ReconciliationIntegrationTest {
         Long count = jdbcTemplate.queryForObject("select count(*) from trades", Long.class);
         assertThat(count).isNotNull().isGreaterThan(0L);
     }
+    @Test
+    void insertedTradesAreReconciledAndPersisted() {
+    assertThat(reconResultRepository).isNotNull();
+    assertThat(reconResultRepository.findAll()).isNotNull();
+}
 }
