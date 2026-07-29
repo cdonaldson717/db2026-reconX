@@ -30,11 +30,11 @@ public final class FXTrade extends Trade implements TradeType {
 
     private FXTrade(Builder b) {
         super(b.tradeRef, new Money(b.notionalCcy1.multiply(b.fxRate), b.ccy2), b.tradeDate);
-        this.ccy1 = b.ccy1;
-        this.ccy2 = b.ccy2;
-        this.notionalCcy1 = b.notionalCcy1;
-        this.fxRate = b.fxRate;
-        this.side = b.side;
+        this.ccy1           = b.ccy1;
+        this.ccy2           = b.ccy2;
+        this.notionalCcy1   = b.notionalCcy1;
+        this.fxRate         = b.fxRate;
+        this.side           = b.side;
         this.counterpartyId = b.counterpartyId;
     }
 
@@ -42,8 +42,8 @@ public final class FXTrade extends Trade implements TradeType {
 
     @Override public AssetClass assetClass() { return AssetClass.FX; }
 
-    public Currency ccy1() { return ccy1; }
-    public Currency ccy2() { return ccy2; }
+    public Currency ccy1()           { return ccy1; }
+    public Currency ccy2()           { return ccy2; }
     public BigDecimal notionalCcy1() { return notionalCcy1; }
     public BigDecimal fxRate() { return fxRate; }
     public Side side() { return side; }
