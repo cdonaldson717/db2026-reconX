@@ -29,10 +29,23 @@ public record TradeRef(String value) {
         }
     }
 
+    /**
+     * Create a validated trade reference from its string form.
+     *
+     * @param value the raw trade reference, expected in {@code AAA-YYYYMMDD-NNNN} form.
+     * @return a validated {@code TradeRef}.
+     * @throws NullPointerException if {@code value} is {@code null}.
+     * @throws IllegalArgumentException if {@code value} does not match the required format.
+     */
     public static TradeRef of(String value) {
         return new TradeRef(value);
     }
 
+    /**
+     * Render the stable business key as plain text for logs, maps, and comparisons.
+     *
+     * @return the underlying trade-reference string exactly as stored.
+     */
     @Override
     public String toString() {
         return value;
