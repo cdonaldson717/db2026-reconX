@@ -5,20 +5,12 @@ import java.time.LocalDate;
 import java.util.Currency;
 import java.util.Objects;
 
-/**
- * ============================================================================
- * TICKET-ADV022 - DerivativeTrade with Builder pattern
- *
- * WHAT:    Option/derivative trade - underlying, strike, expiry, optionType.
- * HOW:     Same builder pattern. notional() = strike * quantity in the
- *          trade's currency (simplified - real derivatives use delta-adjusted).
- *          Expiry is validated against tradeDate, not the current date, so an
- *          expired derivative remains a valid historical trade record.
- * ============================================================================
- */
 public final class DerivativeTrade extends Trade implements TradeType {
 
-    public enum OptionType { CALL, PUT }
+    public enum OptionType {
+        CALL,
+        PUT
+    }
 
     private final String underlying;
     private final BigDecimal strike;
@@ -29,67 +21,153 @@ public final class DerivativeTrade extends Trade implements TradeType {
     private final Side side;
     private final long counterpartyId;
 
-    private DerivativeTrade(Builder b) {
-        super(b.tradeRef, new Money(b.strike.multiply(b.quantity), b.currency), b.tradeDate);
-        this.underlying = b.underlying;
-        this.strike = b.strike;
-        this.quantity = b.quantity;
-        this.expiry = b.expiry;
-        this.optionType = b.optionType;
-        this.currency = b.currency;
-        this.side = b.side;
-        this.counterpartyId = b.counterpartyId;
+    private DerivativeTrade(Builder builder) {
+        super(
+                builder.tradeRef,
+                new Money(
+                        builder.strike.multiply(builder.quantity),
+                        builder.currency),
+                builder.tradeDate);
+
+        this.underlying = builder.underlying;
+        this.strike = builder.strike;
+        this.quantity = builder.quantity;
+        this.expiry = builder.expiry;
+        this.optionType = builder.optionType;
+        this.currency = builder.currency;
+        this.side = builder.side;
+        this.counterpartyId = builder.counterpartyId;
     }
 
-    public static Builder builder() { return new Builder(); }
-
-    @Override public AssetClass assetClass() { return AssetClass.DERIVATIVE; }
-
-    public String underlying()       { return underlying; }
-    public BigDecimal strike()       { return strike; }
-    public BigDecimal quantity()     { return quantity; }
-    public LocalDate expiry()        { return expiry; }
-    public OptionType optionType()   { return optionType; }
-    public Currency currency()       { return currency; }
-    public Side side()               { return side; }
-    public long counterpartyId()     { return counterpartyId; }
-
-    @Override public boolean equals(Object o) {
-        return (o instanceof DerivativeTrade other) && tradeRef().equals(other.tradeRef());
+    public static Builder builder() {
+        return new Builder();
     }
 
-    @Override public int hashCode() {
+    @Override
+    public AssetClass assetClass() {
+        return AssetClass.DERIVATIVE;
+    }
+
+    public String underlying() {
+        return underlying;
+    }
+
+    public BigDecimal strike() {
+        return strike;
+    }
+
+    public BigDecimal quantity() {
+        return quantity;
+    }
+
+    public LocalDate expiry() {
+        return expiry;
+    }
+
+    public OptionType optionType() {
+        return optionType;
+    }
+
+    public Currency currency() {
+        return currency;
+    }
+
+    public Side side() {
+        return side;
+    }
+
+    public long counterpartyId() {
+        return counterpartyId;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        return object instanceof DerivativeTrade other
+                && tradeRef().equals(other.tradeRef());
+    }
+
+    @Override
+    public int hashCode() {
         return tradeRef().hashCode();
     }
 
-    @Override public String toString() {
-        // NOTE: counterpartyId is intentionally omitted to avoid leaking PII in logs.
+    @Override
+    public String toString() {
         return "DerivativeTrade[ref=%s, %s %s on %s, strike=%s %s, qty=%s, expiry=%s, side=%s]"
-                .formatted(tradeRef(), optionType, underlying, tradeDate(),
-                        strike.toPlainString(), currency.getCurrencyCode(),
-                        quantity.toPlainString(), expiry, side);
+                .formatted(
+                        tradeRef(),
+                        optionType,
+                        underlying,
+                        tradeDate(),
+                        strike.toPlainString(),
+                        currency.getCurrencyCode(),
+                        quantity.toPlainString(),
+                        expiry,
+                        side);
     }
 
     public static final class Builder {
+
         private TradeRef tradeRef;
         private String underlying;
-        private BigDecimal strike, quantity;
-        private LocalDate expiry, tradeDate;
+        private BigDecimal strike;
+        private BigDecimal quantity;
+        private LocalDate expiry;
+        private LocalDate tradeDate;
         private OptionType optionType;
         private Currency currency;
         private Side side;
         private long counterpartyId;
 
-        public Builder tradeRef(TradeRef v) { this.tradeRef = v; return this; }
-        public Builder underlying(String v) { this.underlying = v; return this; }
-        public Builder strike(BigDecimal v) { this.strike = v; return this; }
-        public Builder quantity(BigDecimal v) { this.quantity = v; return this; }
-        public Builder expiry(LocalDate v) { this.expiry = v; return this; }
-        public Builder optionType(OptionType v) { this.optionType = v; return this; }
-        public Builder currency(String code) { this.currency = Currency.getInstance(code); return this; }
-        public Builder side(Side v) { this.side = v; return this; }
-        public Builder tradeDate(LocalDate v) { this.tradeDate = v; return this; }
-        public Builder counterpartyId(long v) { this.counterpartyId = v; return this; }
+        public Builder tradeRef(TradeRef value) {
+            this.tradeRef = value;
+            return this;
+        }
+
+        public Builder underlying(String value) {
+            this.underlying = value;
+            return this;
+        }
+
+        public Builder strike(BigDecimal value) {
+            this.strike = value;
+            return this;
+        }
+
+        public Builder quantity(BigDecimal value) {
+            this.quantity = value;
+            return this;
+        }
+
+        public Builder expiry(LocalDate value) {
+            this.expiry = value;
+            return this;
+        }
+
+        public Builder optionType(OptionType value) {
+            this.optionType = value;
+            return this;
+        }
+
+        public Builder currency(String code) {
+            this.currency = Currency.getInstance(code);
+            return this;
+        }
+
+        public Builder side(Side value) {
+            this.side = value;
+            return this;
+        }
+
+        public Builder tradeDate(LocalDate value) {
+            this.tradeDate = value;
+            return this;
+        }
+
+        public Builder counterpartyId(long value) {
+            this.counterpartyId = value;
+            return this;
+        }
 
         public DerivativeTrade build() {
             Objects.requireNonNull(tradeRef, "tradeRef");
@@ -101,11 +179,6 @@ public final class DerivativeTrade extends Trade implements TradeType {
             Objects.requireNonNull(currency, "currency");
             Objects.requireNonNull(side, "side");
             Objects.requireNonNull(tradeDate, "tradeDate");
-            if (underlying.isBlank()) throw new IllegalStateException("underlying must not be blank");
-            if (strike.signum() <= 0) throw new IllegalStateException("strike must be > 0");
-            if (quantity.signum() <= 0) throw new IllegalStateException("quantity must be > 0");
-            if (!expiry.isAfter(tradeDate))
-                throw new IllegalStateException("expiry must be after tradeDate");
 
             return new DerivativeTrade(this);
         }
