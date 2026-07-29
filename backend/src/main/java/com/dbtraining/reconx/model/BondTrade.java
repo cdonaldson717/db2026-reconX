@@ -27,12 +27,12 @@ public final class BondTrade extends Trade implements TradeType {
 
     private BondTrade(Builder b) {
         super(b.tradeRef, new Money(b.faceValue, b.currency), b.tradeDate);
-        this.isin = b.isin;
-        this.faceValue = b.faceValue;
-        this.couponRate = b.couponRate;
-        this.maturityDate = b.maturityDate;
-        this.currency = b.currency;
-        this.side = b.side;
+        this.isin           = b.isin;
+        this.faceValue      = b.faceValue;
+        this.couponRate     = b.couponRate;
+        this.maturityDate   = b.maturityDate;
+        this.currency       = b.currency;
+        this.side           = b.side;
         this.counterpartyId = b.counterpartyId;
     }
 
@@ -40,13 +40,13 @@ public final class BondTrade extends Trade implements TradeType {
 
     @Override public AssetClass assetClass() { return AssetClass.BOND; }
 
-    public String isin() { return isin; }
-    public BigDecimal faceValue() { return faceValue; }
-    public BigDecimal couponRate() { return couponRate; }
-    public LocalDate maturityDate() { return maturityDate; }
-    public Currency currency() { return currency; }
-    public Side side() { return side; }
-    public long counterpartyId() { return counterpartyId; }
+    public String isin()              { return isin; }
+    public BigDecimal faceValue()     { return faceValue; }
+    public BigDecimal couponRate()    { return couponRate; }
+    public LocalDate maturityDate()   { return maturityDate; }
+    public Currency currency()        { return currency; }
+    public Side side()                { return side; }
+    public long counterpartyId()      { return counterpartyId; }
 
     @Override public boolean equals(Object o) {
         return (o instanceof BondTrade other) && tradeRef().equals(other.tradeRef());
