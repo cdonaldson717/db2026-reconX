@@ -43,5 +43,6 @@ public record TradeRequest(
         BigDecimal price,
 
         @NotNull
+        @PastOrPresent
         LocalDate tradeDate
 ) {}

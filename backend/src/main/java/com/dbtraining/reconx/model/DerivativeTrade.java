@@ -17,6 +17,7 @@ import java.util.Objects;
  * ============================================================================
  */
 public final class DerivativeTrade extends Trade implements TradeType {
+public final class DerivativeTrade extends Trade implements TradeType {
 
     public enum OptionType { CALL, PUT }
 
@@ -45,14 +46,14 @@ public final class DerivativeTrade extends Trade implements TradeType {
 
     @Override public AssetClass assetClass() { return AssetClass.DERIVATIVE; }
 
-    public String underlying() { return underlying; }
-    public BigDecimal strike() { return strike; }
-    public BigDecimal quantity() { return quantity; }
-    public LocalDate expiry() { return expiry; }
-    public OptionType optionType() { return optionType; }
-    public Currency currency() { return currency; }
-    public Side side() { return side; }
-    public long counterpartyId() { return counterpartyId; }
+    public String underlying()       { return underlying; }
+    public BigDecimal strike()       { return strike; }
+    public BigDecimal quantity()     { return quantity; }
+    public LocalDate expiry()        { return expiry; }
+    public OptionType optionType()   { return optionType; }
+    public Currency currency()       { return currency; }
+    public Side side()               { return side; }
+    public long counterpartyId()     { return counterpartyId; }
 
     @Override public boolean equals(Object o) {
         return (o instanceof DerivativeTrade other) && tradeRef().equals(other.tradeRef());
