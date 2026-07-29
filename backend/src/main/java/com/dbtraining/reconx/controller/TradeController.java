@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.Map;
 
 /**
  * ============================================================================
@@ -88,17 +89,28 @@ public class TradeController {
                                 @AuthenticationPrincipal Object principal) {
         // TODO(TICKET-ADV065): delegate to service.update(id, req, actor) and
         //   map the updated entity through mapper.toResponse.
-        throw new UnsupportedOperationException("TICKET-ADV065");
+        Trade updated = service.update(id, req, String.valueOf(principal));
+        return mapper.toResponse(updated);
     }
 
     @PatchMapping("/{id}/status")
     @Operation(summary = "Update only the status field")
     public TradeResponse updateStatus(@PathVariable Long id,
-                                      @RequestBody Map<String, String> body,
+                                      @Valid @RequestBody StatusUpdate request,
                                       @AuthenticationPrincipal Object principal) {
         // TODO(TICKET-ADV066): read body.get("status") and call
         //   service.updateStatus(id, status, actor). Return mapper.toResponse(saved).
-        throw new UnsupportedOperationException("TICKET-ADV066");
+        Trade updated = service.updateStatus(
+                id, request.status(), String.valueOf(principal));
+        return mapper.toResponse(updated);
+    }
+
+    public record StatusUpdate(
+            @NotBlank
+            @Pattern(
+                    regexp = "^(PENDING|MATCHED|UNMATCHED|DISPUTED|CANCELLED)$",
+                    message = "status must be PENDING, MATCHED, UNMATCHED, DISPUTED, or CANCELLED")
+            String status) {
     }
 
     @DeleteMapping("/{id}")
