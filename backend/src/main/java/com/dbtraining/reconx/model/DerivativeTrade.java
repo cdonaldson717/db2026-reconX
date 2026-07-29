@@ -17,7 +17,6 @@ import java.util.Objects;
  * ============================================================================
  */
 public final class DerivativeTrade extends Trade implements TradeType {
-public final class DerivativeTrade extends Trade implements TradeType {
 
     public enum OptionType { CALL, PUT }
 
@@ -107,19 +106,6 @@ public final class DerivativeTrade extends Trade implements TradeType {
             if (quantity.signum() <= 0) throw new IllegalStateException("quantity must be > 0");
             if (!expiry.isAfter(tradeDate))
                 throw new IllegalStateException("expiry must be after tradeDate");
-
-            if (underlying.isBlank()) {
-                throw new IllegalStateException("underlying must not be blank");
-            }
-            if (strike.signum() <= 0) {
-                throw new IllegalStateException("strike must be > 0");
-            }
-            if (quantity.signum() <= 0) {
-                throw new IllegalStateException("quantity must be > 0");
-            }
-            if (!expiry.isAfter(tradeDate)) {
-                throw new IllegalStateException("expiry must be after tradeDate");
-            }
 
             return new DerivativeTrade(this);
         }
