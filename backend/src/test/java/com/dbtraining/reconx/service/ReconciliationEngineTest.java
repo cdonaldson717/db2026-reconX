@@ -83,6 +83,33 @@ class ReconciliationEngineTest {
         assertThat(out).isEmpty();
     }
 
+    @Test
+void testReconcile_allMismatched_summaryShowsZeroMatched() {
+    List<TradeType> internals = List.of(
+            equity("EQU-20260603-1001", "100.00", "1000"),
+            equity("EQU-20260603-1002", "100.00", "1000"),
+            equity("EQU-20260603-1003", "100.00", "1000")
+    );
+
+    List<TradeType> externals = List.of(
+            equity("EQU-20260603-1001", "200.00", "1000"),
+            equity("EQU-20260603-1002", "200.00", "1000"),
+            equity("EQU-20260603-1003", "200.00", "1000")
+    );
+
+    List<ReconResult> out = engine.reconcile(
+            internals,
+            externals,
+            ReconciliationRule.EXACT);
+
+    ReconSummary summary = out.stream()
+            .collect(new ReconSummaryCollector());
+
+    assertThat(summary.total()).isEqualTo(3);
+    assertThat(summary.matched()).isEqualTo(0);
+    assertThat(summary.broken()).isEqualTo(3);
+}
+
     private EquityTrade equity(String ref, String price, String qty) {
         return EquityTrade.builder()
                 .tradeRef(TradeRef.of(ref))
