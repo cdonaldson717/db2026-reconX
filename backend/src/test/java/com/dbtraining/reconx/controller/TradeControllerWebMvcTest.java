@@ -3,7 +3,7 @@ package com.dbtraining.reconx.controller;
 import com.dbtraining.reconx.dto.TradeMapper;
 import com.dbtraining.reconx.dto.TradeRequest;
 import com.dbtraining.reconx.dto.TradeResponse;
-import com.dbtraining.reconx.exception.GlobalExceptionHandler;
+import com.dbtraining.reconx.api.GlobalExceptionHandler;
 import com.dbtraining.reconx.repository.entity.Trade;
 import com.dbtraining.reconx.security.JwtTokenProvider;
 import com.dbtraining.reconx.security.SecurityConfig;
