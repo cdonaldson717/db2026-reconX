@@ -88,7 +88,8 @@ public class TradeController {
                                 @AuthenticationPrincipal Object principal) {
         // TODO(TICKET-ADV065): delegate to service.update(id, req, actor) and
         //   map the updated entity through mapper.toResponse.
-        throw new UnsupportedOperationException("TICKET-ADV065");
+        Trade updated = service.update(id, req, String.valueOf(principal));
+        return mapper.toResponse(updated);
     }
 
     @PatchMapping("/{id}/status")
