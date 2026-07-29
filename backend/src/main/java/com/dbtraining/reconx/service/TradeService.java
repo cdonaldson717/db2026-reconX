@@ -116,7 +116,12 @@ public class TradeService {
     public Trade updateStatus(Long id, String status, String actor) {
         // TODO(TICKET-ADV066): load, setStatus(status), save, publish TRADE_UPDATED
         //   with the new status in the "after" slot of the event.
-        throw new UnsupportedOperationException("TICKET-ADV066");
+        Trade trade = tradeRepo.findById(id)
+                .orElseThrow(() -> new TradeNotFoundException(
+                        "Trade not found: " + id));
+
+        trade.setStatus(status);
+        return trade;
     }
 
     public void softDelete(Long id, String actor) {
