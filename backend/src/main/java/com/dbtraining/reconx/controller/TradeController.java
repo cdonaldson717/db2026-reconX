@@ -73,7 +73,13 @@ public class TradeController {
         // TODO(TICKET-ADV064): call service.create(req, actor), build a Location
         //   header at /api/v1/trades/{id}, and return 201 Created with the
         //   mapped TradeResponse body.
-        throw new UnsupportedOperationException("TICKET-ADV064");
+        String actor = String.valueOf(principal);
+
+        Trade saved = service.create(req, actor);
+
+        URI location = URI.create("/api/v1/trades/" + saved.getId());
+
+        return ResponseEntity.created(location).body(mapper.toResponse(saved));
     }
 
     @PutMapping("/{id}")
