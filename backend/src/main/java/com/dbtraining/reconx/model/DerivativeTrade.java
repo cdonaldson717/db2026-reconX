@@ -5,6 +5,17 @@ import java.time.LocalDate;
 import java.util.Currency;
 import java.util.Objects;
 
+/**
+ * ============================================================================
+ * TICKET-ADV022 - DerivativeTrade with Builder pattern
+ *
+ * WHAT:    Option/derivative trade - underlying, strike, expiry, optionType.
+ * HOW:     Same builder pattern. notional() = strike * quantity in the
+ *          trade's currency (simplified - real derivatives use delta-adjusted).
+ *          Expiry is validated against tradeDate, not the current date, so an
+ *          expired derivative remains a valid historical trade record.
+ * ============================================================================
+ */
 public final class DerivativeTrade extends Trade implements TradeType {
 
     public enum OptionType {

@@ -5,15 +5,18 @@
 # resolved at container start (see docker-compose.yml + GitHub Actions secrets).
 # =============================================================================
 spring:
+  liquibase:
+    contexts: prod
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: ${RECONX_DB_URL}
+    username: ${RECONX_DB_USER}
+    password: ${RECONX_DB_PASSWORD}
     hikari:
       maximum-pool-size: 30
       connection-timeout: 3000
       leak-detection-threshold: 30000
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
       hibernate.jdbc.batch_size: 100
