@@ -24,3 +24,8 @@ public class ReconciliationMismatchException extends ReconException {
         super(message, cause);
     }
 }
+
+    public ReconciliationMismatchException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}

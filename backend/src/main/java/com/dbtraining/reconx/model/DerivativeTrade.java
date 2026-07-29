@@ -17,6 +17,7 @@ import java.util.Objects;
  * ============================================================================
  */
 public final class DerivativeTrade extends Trade implements TradeType {
+public final class DerivativeTrade extends Trade implements TradeType {
 
     public enum OptionType { CALL, PUT }
 
@@ -31,13 +32,13 @@ public final class DerivativeTrade extends Trade implements TradeType {
 
     private DerivativeTrade(Builder b) {
         super(b.tradeRef, new Money(b.strike.multiply(b.quantity), b.currency), b.tradeDate);
-        this.underlying     = b.underlying;
-        this.strike         = b.strike;
-        this.quantity       = b.quantity;
-        this.expiry         = b.expiry;
-        this.optionType     = b.optionType;
-        this.currency       = b.currency;
-        this.side           = b.side;
+        this.underlying = b.underlying;
+        this.strike = b.strike;
+        this.quantity = b.quantity;
+        this.expiry = b.expiry;
+        this.optionType = b.optionType;
+        this.currency = b.currency;
+        this.side = b.side;
         this.counterpartyId = b.counterpartyId;
     }
 

@@ -22,6 +22,11 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     enabled: true
 
+  # Liquibase is the sole schema/data initializer in every environment.
+  sql:
+    init:
+      mode: never
+
   jpa:
     open-in-view: false
     hibernate:

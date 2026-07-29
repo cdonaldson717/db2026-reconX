@@ -2,6 +2,8 @@ package com.dbtraining.reconx.model;
 
 import com.dbtraining.reconx.exception.InvalidTradeException;
 
+import com.dbtraining.reconx.exception.InvalidTradeException;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Locale;

@@ -26,7 +26,16 @@ public class TradeAnalyticsService {
         //   Collectors.collectingAndThen(toList(), list -> new NotionalSummary(
         //       list.size(),
         //       list.stream().map(t -> t.notional().amount()).reduce(ZERO, BigDecimal::add)))).
-        throw new UnsupportedOperationException("TICKET-ADV034");
+        return trades.stream()
+                .collect(Collectors.groupingBy(
+                        this::counterpartyIdOf,
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list -> new NotionalSummary(
+                                        list.size(),
+                                        list.stream()
+                                                .map(trade -> trade.notional().amount())
+                                                .reduce(BigDecimal.ZERO, BigDecimal::add)))));
     }
 
     /**
@@ -38,7 +47,30 @@ public class TradeAnalyticsService {
         //   each bucket compute SUM(price * qty) / SUM(qty) using BigDecimal
         //   with RoundingMode.HALF_UP. Return BigDecimal.ZERO when totalQty is 0
         //   (avoid ArithmeticException on division by zero).
-        throw new UnsupportedOperationException("TICKET-ADV035");
+        Map<String, List<EquityTrade>> tradesByInstrument = equityTrades.stream()
+                .collect(Collectors.groupingBy(EquityTrade::instrumentSymbol));
+
+        return tradesByInstrument.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> {
+                            BigDecimal totalQuantity = entry.getValue().stream()
+                                    .map(EquityTrade::quantity)
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                            if (totalQuantity.signum() == 0) {
+                                return BigDecimal.ZERO;
+                            }
+
+                            BigDecimal weightedTotal = entry.getValue().stream()
+                                    .map(trade -> trade.price().multiply(trade.quantity()))
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                            return weightedTotal.divide(
+                                    totalQuantity,
+                                    4,
+                                    RoundingMode.HALF_UP);
+                        }));
     }
 
     /** TICKET-ADV036 — P&L per instrument symbol (sign by Side). */
@@ -46,18 +78,32 @@ public class TradeAnalyticsService {
         // TODO(TICKET-ADV036): groupingBy(EquityTrade::instrumentSymbol,
         //   mapping(this::pnl, reducing(BigDecimal.ZERO, BigDecimal::add))).
         //   Side.SELL contributes positively; Side.BUY contributes negatively.
-        throw new UnsupportedOperationException("TICKET-ADV036");
+        return equityTrades.stream()
+                .collect(Collectors.groupingBy(
+                        EquityTrade::instrumentSymbol,
+                        Collectors.mapping(
+                                this::pnl,
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))));
     }
 
     private BigDecimal pnl(EquityTrade t) {
         // TODO(TICKET-ADV036): BigDecimal abs = price * qty; SELL -> abs, BUY -> abs.negate().
-        throw new UnsupportedOperationException("TICKET-ADV036");
+        BigDecimal absolutePnl = t.price().multiply(t.quantity());
+        return t.side() == com.dbtraining.reconx.model.Side.SELL
+                ? absolutePnl
+                : absolutePnl.negate();
     }
 
     private long counterpartyIdOf(TradeType t) {
         // TODO(TICKET-ADV018): exhaustive switch over the sealed TradeType
         //   hierarchy returning t.counterpartyId() for each concrete subtype.
-        throw new UnsupportedOperationException("TICKET-ADV018");
+        return switch (t) {
+            case EquityTrade equity -> equity.counterpartyId();
+            case com.dbtraining.reconx.model.FXTrade fx -> fx.counterpartyId();
+            case com.dbtraining.reconx.model.BondTrade bond -> bond.counterpartyId();
+            case com.dbtraining.reconx.model.DerivativeTrade derivative ->
+                    derivative.counterpartyId();
+        };
     }
 
     public record NotionalSummary(long count, BigDecimal total) {}

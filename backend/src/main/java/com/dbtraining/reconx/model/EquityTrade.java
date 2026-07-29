@@ -44,7 +44,7 @@ public final class EquityTrade extends Trade implements TradeType {
 
     public static Builder builder() { return new Builder(); }
 
-    @Override public AssetClass assetClass(){ return AssetClass.EQUITY; }
+    @Override public AssetClass assetClass() { return AssetClass.EQUITY; }
 
     public String instrumentSymbol() { return instrumentSymbol; }
     public BigDecimal quantity() { return quantity; }
