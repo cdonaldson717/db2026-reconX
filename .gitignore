@@ -2,3 +2,4 @@
 /recon-audit-starter/target/
 
 .vscode/
+performance/ticket-97-results.json
