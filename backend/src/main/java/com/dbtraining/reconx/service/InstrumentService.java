@@ -20,7 +20,10 @@ public class InstrumentService {
         this.repo = repo;
     }
 
-    @Cacheable(value = "instruments", key = "#symbol")
+    @Cacheable(
+            value = "instruments",
+            key = "#symbol",
+            condition = "@reconConfigMBean.isCachingEnabled()")
     public Instrument findBySymbol(String symbol) {
         LOGGER.info("DB hit for {}", symbol);
 

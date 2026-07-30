@@ -7,8 +7,10 @@ import com.dbtraining.reconx.model.EquityTrade;
 import com.dbtraining.reconx.model.FXTrade;
 import com.dbtraining.reconx.model.ReconciliationRule;
 import com.dbtraining.reconx.model.TradeType;
+import com.dbtraining.reconx.observability.ReconConfigMBean;
 import io.micrometer.core.annotation.Timed;
 import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -47,15 +49,28 @@ public class ReconciliationEngine {
     private static final AtomicInteger THREAD_SEQUENCE = new AtomicInteger();
 
     private final ExecutorService executor;
+    private final ReconConfigMBean runtimeConfig;
 
     public ReconciliationEngine() {
         this(Executors.newFixedThreadPool(
                 Math.max(1, Runtime.getRuntime().availableProcessors()),
-                reconciliationThreadFactory()));
+                reconciliationThreadFactory()), null);
     }
 
     ReconciliationEngine(ExecutorService executor) {
+        this(executor, null);
+    }
+
+    @Autowired
+    public ReconciliationEngine(ReconConfigMBean runtimeConfig) {
+        this(Executors.newFixedThreadPool(
+                Math.max(1, Runtime.getRuntime().availableProcessors()),
+                reconciliationThreadFactory()), runtimeConfig);
+    }
+
+    private ReconciliationEngine(ExecutorService executor, ReconConfigMBean runtimeConfig) {
         this.executor = Objects.requireNonNull(executor, "executor");
+        this.runtimeConfig = runtimeConfig;
     }
 
     private static ThreadFactory reconciliationThreadFactory() {
@@ -130,8 +145,7 @@ public class ReconciliationEngine {
 
         BigDecimal[] internalPair = priceQty(internal);
         BigDecimal[] externalPair = priceQty(external);
-        if (rule.matches(
-                internalPair[0], internalPair[1], externalPair[0], externalPair[1])) {
+        if (matches(internalPair, externalPair, rule)) {
             return ReconResult.matched(ref);
         }
         return ReconResult.breakResult(
@@ -139,6 +153,19 @@ public class ReconciliationEngine {
                 "VALUE_MISMATCH",
                 "internal=%s/%s external=%s/%s".formatted(
                         internalPair[0], internalPair[1], externalPair[0], externalPair[1]));
+    }
+
+    private boolean matches(BigDecimal[] internal, BigDecimal[] external, ReconciliationRule rule) {
+        if (runtimeConfig == null) {
+            return rule.matches(internal[0], internal[1], external[0], external[1]);
+        }
+
+        BigDecimal priceDifference = internal[0].subtract(external[0]).abs();
+        BigDecimal allowedPriceDifference = internal[0].abs()
+                .multiply(BigDecimal.valueOf(runtimeConfig.getPriceTolerance()));
+        BigDecimal quantityDifference = internal[1].subtract(external[1]).abs();
+        return priceDifference.compareTo(allowedPriceDifference) <= 0
+                && quantityDifference.compareTo(rule.qtyToleranceAbs()) <= 0;
     }
 
     /** TICKET-ADV018 — exhaustive switch over the sealed hierarchy. */
