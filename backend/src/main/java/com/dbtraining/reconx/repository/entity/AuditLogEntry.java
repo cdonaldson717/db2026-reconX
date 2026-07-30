@@ -35,7 +35,8 @@ public class AuditLogEntry {
     @Column(name = "before_state", columnDefinition = "TEXT")
     private String beforeState;
 
-    @Column(name = "after_state", columnDefinition = "TEXT")
+    @Lob
+    @Column(name = "after_state")
     private String afterState;
 
     public AuditLogEntry() {}
