@@ -209,6 +209,18 @@ matching day's README under [`./student-guides/`](./student-guides/README.md).
 
 ---
 
+## API versioning and deprecation
+
+Public resource endpoints use a version segment beneath the `/api` context
+path, for example `/api/v1/trades`. Breaking contract changes ship under a new
+segment such as `/api/v2`; the prior version remains available until its
+published `Sunset` date. Deprecated endpoints return `Deprecation`, `Sunset`,
+and `Link` headers identifying the successor contract. After sunset, the old
+endpoint returns `410 Gone` so clients can distinguish deliberate retirement
+from an unknown route.
+
+---
+
 ## Daily flow
 
 | Day | Theme | New Tickets | Headline new-2026 topic |
