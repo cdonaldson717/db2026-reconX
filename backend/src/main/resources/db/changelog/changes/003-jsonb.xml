@@ -4,8 +4,9 @@
  TICKET-ADV009 — JSONB column on instruments (+ GIN index on Postgres)
  WHAT:    Adds a JSONB document for attributes that vary by instrument type,
           plus a containment-focused GIN index.
- HOW:     Postgres-only step; H2 dialect lacks JSONB. The precondition guards
-          dialect so dev (H2) skips the column entirely.
+ HOW:     PostgreSQL receives JSONB plus a GIN index. H2 2.x in PostgreSQL
+          compatibility mode receives the JSONB column without the PG-only
+          index syntax.
  WHY:     Schemaless metadata avoids 12 columns that only apply to one asset
           class. Trade-off: validation moves to the app layer.
  OBSERVE: \d instruments shows metadata jsonb. A metadata @> containment
