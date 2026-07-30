@@ -32,22 +32,16 @@ public final class DerivativeTrade extends Trade implements TradeType {
     private final Side side;
     private final long counterpartyId;
 
-    private DerivativeTrade(Builder builder) {
-        super(
-                builder.tradeRef,
-                new Money(
-                        builder.strike.multiply(builder.quantity),
-                        builder.currency),
-                builder.tradeDate);
-
-        this.underlying = builder.underlying;
-        this.strike = builder.strike;
-        this.quantity = builder.quantity;
-        this.expiry = builder.expiry;
-        this.optionType = builder.optionType;
-        this.currency = builder.currency;
-        this.side = builder.side;
-        this.counterpartyId = builder.counterpartyId;
+    private DerivativeTrade(Builder b) {
+        super(b.tradeRef, new Money(b.strike.multiply(b.quantity), b.currency), b.tradeDate);
+        this.underlying     = b.underlying;
+        this.strike         = b.strike;
+        this.quantity       = b.quantity;
+        this.expiry         = b.expiry;
+        this.optionType     = b.optionType;
+        this.currency       = b.currency;
+        this.side           = b.side;
+        this.counterpartyId = b.counterpartyId;
     }
 
     public static Builder builder() {

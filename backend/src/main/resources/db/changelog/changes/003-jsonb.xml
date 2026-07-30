@@ -4,9 +4,8 @@
  TICKET-ADV009 — JSONB column on instruments (+ GIN index on Postgres)
  WHAT:    Adds a JSONB document for attributes that vary by instrument type,
           plus a containment-focused GIN index.
- HOW:     PostgreSQL receives JSONB plus a GIN index. H2 2.x in PostgreSQL
-          compatibility mode receives the JSONB column without the PG-only
-          index syntax.
+ HOW:     Postgres-only step; H2 dialect lacks JSONB. The precondition guards
+          dialect so dev (H2) skips the column entirely.
  WHY:     Schemaless metadata avoids 12 columns that only apply to one asset
           class. Trade-off: validation moves to the app layer.
  OBSERVE: \d instruments shows metadata jsonb. A metadata @> containment
@@ -48,13 +47,17 @@
                 <not><columnExists tableName="instruments" columnName="metadata"/></not>
             </and>
         </preConditions>
-        <addColumn tableName="instruments">
-            <column name="metadata" type="JSONB" defaultValueComputed="JSON '{}'">
-                <constraints nullable="false"/>
-            </column>
-        </addColumn>
+        <sql>
+            ALTER TABLE instruments
+                ADD COLUMN metadata JSONB NOT NULL DEFAULT '{}'::JSONB;
+        </sql>
+        <sql>
+            CREATE INDEX idx_instrument_metadata_path
+                ON instruments USING GIN (metadata jsonb_path_ops);
+        </sql>
         <rollback>
-            <dropColumn tableName="instruments" columnName="metadata"/>
+            <sql>DROP INDEX IF EXISTS idx_instrument_metadata_path;</sql>
+            <sql>ALTER TABLE instruments DROP COLUMN IF EXISTS metadata;</sql>
         </rollback>
     </changeSet>
 
