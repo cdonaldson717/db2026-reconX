@@ -17,7 +17,6 @@ import java.util.Objects;
  * ============================================================================
  */
 public final class DerivativeTrade extends Trade implements TradeType {
-public final class DerivativeTrade extends Trade implements TradeType {
 
     public enum OptionType {
         CALL,
