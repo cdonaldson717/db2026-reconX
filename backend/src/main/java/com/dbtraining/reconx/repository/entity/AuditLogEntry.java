@@ -30,9 +30,9 @@ public class AuditLogEntry {
     @Column(length = 100)
     private String actor;
 
-    // Match the CLOB columns defined by the Liquibase schema.
-    @Lob
-    @Column(name = "before_state")
+    // Liquibase maps CLOB to TEXT on PostgreSQL. Avoid @Lob here because
+    // Hibernate maps a String LOB to PostgreSQL's OID type instead.
+    @Column(name = "before_state", columnDefinition = "TEXT")
     private String beforeState;
 
     @Lob

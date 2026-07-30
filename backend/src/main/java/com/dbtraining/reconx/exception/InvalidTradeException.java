@@ -1,15 +1,10 @@
 package com.dbtraining.reconx.exception;
 
 /**
- * Signals that an inbound trade payload cannot be parsed or validated into a domain trade.
+ * Signals that an inbound trade payload cannot be parsed or validated.
  */
 public class InvalidTradeException extends ReconException {
 
-    /**
-     * Create an invalid-trade error with the validation or parsing detail.
-     *
-     * @param message the specific reason the trade is invalid.
-     */
     public InvalidTradeException(String message) {
         super(message);
     }
