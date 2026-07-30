@@ -1,3 +1,4 @@
 /backend/target/
 
 .vscode/
+performance/ticket-97-results.json
