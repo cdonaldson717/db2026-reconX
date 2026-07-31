@@ -6,6 +6,7 @@ import com.dbtraining.reconx.dto.TradeRequest;
 import com.dbtraining.reconx.dto.TradeResponse;
 import com.dbtraining.reconx.repository.entity.Trade;
 import com.dbtraining.reconx.service.TradeService;
+import com.dbtraining.reconx.service.TradeStreamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,9 +18,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -41,10 +44,12 @@ public class TradeController {
 
     private final TradeService service;
     private final TradeMapper mapper;
+    private final TradeStreamService stream;
 
-    public TradeController(TradeService service, TradeMapper mapper) {
+    public TradeController(TradeService service, TradeMapper mapper, TradeStreamService stream) {
         this.service = service;
         this.mapper = mapper;
+        this.stream = stream;
     }
 
     @GetMapping
@@ -74,7 +79,15 @@ public class TradeController {
         String actor = principal != null ? principal.toString() : "system";
         Trade saved = service.create(req, actor);
         TradeResponse body = mapper.toResponse(saved);
+        stream.publish(body);
         return ResponseEntity.created(URI.create("/api/v1/trades/" + body.id())).body(body);
+    }
+
+    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @CrossOrigin(origins = {"http://localhost:5500", "http://127.0.0.1:5500"})
+    @Operation(summary = "Subscribe to newly created trades")
+    public SseEmitter stream() {
+        return stream.subscribe();
     }
 
     @PutMapping("/{id}")
