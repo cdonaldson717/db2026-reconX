@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -45,6 +46,7 @@ public class ReconController {
                 "INSERT INTO recon_jobs (job_id, from_date, to_date, status) VALUES (?, ?, ?, ?)",
                 jobId, req.from(), req.to(), "QUEUED");
         return ResponseEntity.status(HttpStatus.ACCEPTED)
+                .location(URI.create("/api/v1/recon/jobs/" + jobId + "/results"))
                 .body(Map.of("jobId", jobId, "status", "QUEUED"));
     }
 
