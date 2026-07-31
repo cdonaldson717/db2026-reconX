@@ -1,17 +1,21 @@
 import React from 'react';
 
-function TradeRowImpl({ trade, onClick }) {
+function TradeRowImpl({ trade, onClick, isSelected = false }) {
   const statusClass = String(trade.status ?? '')
     .toLowerCase()
     .replaceAll('_', '-');
 
+  const symbol = trade.instrumentSymbol ?? trade.symbol ?? '';
+  const quantity = trade.quantity ?? trade.qty ?? '';
+  const id = trade.id ?? trade.tradeRef;
+
   function handleClick() {
-    onClick?.(trade.id);
+    onClick?.(id);
   }
 
   return (
     <div
-      className="data-table__row"
+      className={`data-table__row${isSelected ? ' data-table__row--selected' : ''}`}
       role="row"
       onClick={handleClick}
       onKeyDown={(event) => {
@@ -23,8 +27,8 @@ function TradeRowImpl({ trade, onClick }) {
       tabIndex={onClick ? 0 : undefined}
     >
       <span role="cell">{trade.tradeRef}</span>
-      <span role="cell">{trade.symbol}</span>
-      <span role="cell">{trade.qty}</span>
+      <span role="cell">{symbol}</span>
+      <span role="cell">{quantity}</span>
       <span role="cell">{trade.price}</span>
       <span role="cell">
         <span className={`status-pill status-pill--${statusClass}`}>
@@ -39,10 +43,13 @@ function areEqual(previous, next) {
   return (
     previous.trade.id === next.trade.id &&
     previous.trade.tradeRef === next.trade.tradeRef &&
-    previous.trade.symbol === next.trade.symbol &&
-    previous.trade.qty === next.trade.qty &&
+    (previous.trade.instrumentSymbol ?? previous.trade.symbol) ===
+      (next.trade.instrumentSymbol ?? next.trade.symbol) &&
+    (previous.trade.quantity ?? previous.trade.qty) ===
+      (next.trade.quantity ?? next.trade.qty) &&
     previous.trade.price === next.trade.price &&
     previous.trade.status === next.trade.status &&
+    previous.isSelected === next.isSelected &&
     previous.onClick === next.onClick
   );
 }
