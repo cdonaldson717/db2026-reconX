@@ -54,13 +54,20 @@ TICKET-ADV100 — ARIA roles + aria-live for the trade feed
         </div>
       </section>
 
-      <section aria-labelledby="feed">
+    <div class="alert alert--danger" role="alert">
+      Attention: 15 unmatched trades require review.
+    </div>
+
+    <section aria-labelledby="feed">
+      <div class="feed-heading">
         <h2 id="feed">Live trade feed</h2>
-        <!-- TICKET-ADV100 aria-live so screen readers announce new trades -->
-        <div id="trade-feed" role="status" aria-live="polite" aria-atomic="false"></div>
-      </section>
-    </main>
-  </div>
+        <span id="sse-status" class="sse-status sse-status--connecting"
+              role="status" aria-live="polite">Connecting…</span>
+      </div>
+      <!-- TICKET-ADV100 aria-live so screen readers announce new trades -->
+      <div id="trade-feed" role="status" aria-live="polite" aria-atomic="false"></div>
+    </section>
+  </main>
 
   <footer class="app-footer" role="contentinfo">
     <small>ReconX TDI 2026 · static dashboard (Day 7)</small>
