@@ -1,5 +1,7 @@
 /backend/target/
 /recon-audit-starter/target/
+/frontend/node_modules/
+/frontend/dist/
 
 .vscode/
 performance/ticket-97-results.json
