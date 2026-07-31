@@ -218,6 +218,30 @@ button { padding: var(--space-1) var(--space-2); border: 1px solid var(--color-b
   background: var(--color-border);
   margin-left: var(--space-2);
   vertical-align: middle;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 /* TICKET-ADV103 — tablet: sidebar becomes a horizontal strip, cards go 2-up. */
 @media (max-width: 1024px) {
   body {
@@ -276,4 +300,5 @@ button { padding: var(--space-1) var(--space-2); border: 1px solid var(--color-b
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
 }
