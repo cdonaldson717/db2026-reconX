@@ -83,7 +83,10 @@ public class TradeService {
         trade.setTradeDate(req.tradeDate());
         trade.setStatus("PENDING");
 
-        return tradeRepo.save(trade);
+        Trade saved = tradeRepo.save(trade);
+        metrics.incrementTradeCreated();
+        metrics.recordTradeValue(saved.getQuantity().multiply(saved.getPrice()).doubleValue());
+        return saved;
     }
 
     public Trade update(Long id, TradeRequest req, String actor) {

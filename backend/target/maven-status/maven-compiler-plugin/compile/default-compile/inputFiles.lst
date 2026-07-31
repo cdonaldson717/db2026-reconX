@@ -4,6 +4,7 @@
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/config/OpenApiConfig.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/controller/AuditController.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/controller/AuthController.java
+/Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/controller/DeprecatedTradeController.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/controller/ReconController.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/controller/TradeController.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/dto/LoginRequest.java
@@ -17,7 +18,6 @@
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/dto/TradeRequest.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/dto/TradeResponse.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/exception/DuplicateTradeRefException.java
-/Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/exception/GlobalExceptionHandler.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/exception/InvalidCredentialsException.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/exception/InvalidTradeException.java
 /Users/esthe/Documents/Deutsche Bank/db2026-reconX/backend/src/main/java/com/dbtraining/reconx/exception/ReconException.java

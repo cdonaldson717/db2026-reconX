@@ -3,9 +3,11 @@ package com.dbtraining.reconx.repository;
 import com.dbtraining.reconx.repository.entity.Trade;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
@@ -22,6 +24,14 @@ public interface TradeRepository
         extends JpaRepository<Trade, Long>, JpaSpecificationExecutor<Trade> {
 
     Optional<Trade> findByTradeRef(String tradeRef);
+
+    @Override
+    @EntityGraph(attributePaths = {"instrument", "counterparty"})
+    Optional<Trade> findById(Long id);
+
+    @Override
+    @EntityGraph(attributePaths = {"instrument", "counterparty"})
+    Page<Trade> findAll(Specification<Trade> specification, Pageable pageable);
 
     @Query("""
         SELECT t FROM Trade t
