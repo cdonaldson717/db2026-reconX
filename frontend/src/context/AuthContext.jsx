@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState } from 'react';
 const TOKEN_KEY = 'reconx-token';
 const ROLE_KEY = 'reconx-role';
 
-const AuthContext = createContext({
+export const AuthContext = createContext({
   user: null,
   isLoading: false,
   login: () => {},

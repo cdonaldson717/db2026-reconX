@@ -11,8 +11,9 @@ function StatCard({ label, value }) {
   );
 }
 
-function Dashboard() {
-  const { trades, isConnected } = useTradeStream();
+export function Dashboard({ trades: providedTrades }) {
+  const { trades: streamedTrades, isConnected } = useTradeStream();
+  const trades = providedTrades ?? streamedTrades;
 
   const portfolioValue = useMemo(
     () =>
