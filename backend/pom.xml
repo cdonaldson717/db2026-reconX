@@ -43,12 +43,12 @@
 
     <dependencies>
         <!-- Reusable audit publisher auto-configuration (ADV095) -->
-        <dependency>
+     <!--   <dependency>
             <groupId>com.dbtraining.reconx</groupId>
             <artifactId>recon-audit-starter</artifactId>
             <version>1.0.0</version>
         </dependency>
-
+-->
         <!-- Web + Validation (ADV063-ADV071) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
