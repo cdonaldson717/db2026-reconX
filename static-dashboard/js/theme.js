@@ -1,15 +1,44 @@
-// TICKET-ADV102 — theme toggle, persisted to localStorage; first paint reads
-// the persisted value to avoid a FOUC flash of the wrong theme.
+// TICKET-ADV100 — persisted theme toggle with no flash on reload.
 (function () {
-  const stored = localStorage.getItem('reconx-theme') || 'light';
-  document.documentElement.dataset.theme = stored;
+  const storageKey = 'reconx-theme';
+  const storedTheme = localStorage.getItem(storageKey);
+  const initialTheme =
+    storedTheme === 'dark' || storedTheme === 'light'
+      ? storedTheme
+      : 'light';
+
+  // Runs from <head> before the stylesheet and body paint.
+  document.documentElement.setAttribute('data-theme', initialTheme);
 
   document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('theme-toggle');
-    btn && btn.addEventListener('click', () => {
-      const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
-      document.documentElement.dataset.theme = next;
-      localStorage.setItem('reconx-theme', next);
+    const button = document.getElementById('theme-toggle');
+
+    if (!button) {
+      return;
+    }
+
+    function updateButton(theme) {
+      const isDark = theme === 'dark';
+      button.setAttribute('aria-pressed', String(isDark));
+      button.textContent = isDark ? 'Light theme' : 'Dark theme';
+    }
+
+    updateButton(initialTheme);
+
+    button.addEventListener('click', () => {
+      const currentTheme =
+        document.documentElement.getAttribute('data-theme');
+
+      const nextTheme =
+        currentTheme === 'dark' ? 'light' : 'dark';
+
+      document.documentElement.setAttribute(
+        'data-theme',
+        nextTheme
+      );
+
+      localStorage.setItem(storageKey, nextTheme);
+      updateButton(nextTheme);
     });
   });
 })();

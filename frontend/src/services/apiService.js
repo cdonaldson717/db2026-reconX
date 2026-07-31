@@ -2,34 +2,46 @@
 const BASE = '/api';
 
 function authHeaders() {
-  // TODO(TICKET-ADV112): read 'reconx-token' from sessionStorage and return
-  //                     { Authorization: `Bearer <token>` }. Return {} when
-  //                     no token is set (login + signup endpoints).
-  return {};
+  const token = sessionStorage.getItem('reconx-token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 async function request(method, path, body) {
-  // TODO(TICKET-ADV112): fetch(`${BASE}${path}`, { method, headers, body }).
-  //   - headers must include Content-Type: application/json and ...authHeaders()
-  //   - serialise `body` via JSON.stringify when present
-  //   - on !res.ok throw new Error(`HTTP ${res.status}: ${detail}`)
-  //   - status 204 -> return null, otherwise return await res.json()
-  throw new Error('TICKET-ADV112 not implemented');
+  const response = await fetch(`${BASE}${path}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    let detail = response.statusText;
+    try {
+      const payload = await response.json();
+      detail = payload.message || payload.error || JSON.stringify(payload);
+    } catch {
+      try {
+        detail = await response.text();
+      } catch {
+        // keep status text fallback
+      }
+    }
+    throw new Error(`HTTP ${response.status}: ${detail}`);
+  }
+
+  if (response.status === 204) return null;
+  return response.json();
 }
 
 export const api = {
-  login: (email, password)   => {
-    // TODO(TICKET-ADV072): POST /auth/login with { email, password }.
-    throw new Error('TICKET-ADV072 not implemented');
-  },
+  login: (email, password)   => request('POST', '/auth/login', { email, password }),
   listTrades: (params = '')  => {
     // TODO(TICKET-ADV114): GET /v1/trades + `params` query string.
     throw new Error('TICKET-ADV114 not implemented');
   },
-  createTrade: (req)         => {
-    // TODO(TICKET-ADV123): POST /v1/trades with the form payload.
-    throw new Error('TICKET-ADV123 not implemented');
-  },
+  createTrade: (req)         => request('POST', '/v1/trades', req),
   updateStatus: (id, status) => {
     // TODO(TICKET-ADV119): PATCH /v1/trades/{id}/status with { status }.
     throw new Error('TICKET-ADV119 not implemented');

@@ -2,24 +2,37 @@
 // (refresh path lives in HttpOnly cookie — out of scope for this trainer copy).
 import React, { createContext, useContext, useState } from 'react';
 
-const AuthContext = createContext({ user: null, login: () => {}, logout: () => {} });
+const TOKEN_KEY = 'reconx-token';
+const ROLE_KEY = 'reconx-role';
+
+export const AuthContext = createContext({
+  user: null,
+  isLoading: false,
+  login: () => {},
+  logout: () => {},
+});
 
 export function AuthProvider({ children }) {
-  // TODO(TICKET-ADV112): lazy-init `user` from sessionStorage so a page
-  //                     refresh doesn't blow the JWT away. Look for keys
-  //                     'reconx-token' and 'reconx-role'.
-  const [user /*, setUser */] = useState(null);
+  const [user, setUser] = useState(() => {
+    const token = sessionStorage.getItem(TOKEN_KEY);
+    const role = sessionStorage.getItem(ROLE_KEY);
+    return token ? { token, role: role || 'VIEWER' } : null;
+  });
 
-  const login = (/* token, role */) => {
-    // TODO(TICKET-ADV112): persist token+role to sessionStorage and call setUser.
+  const login = (token, role) => {
+    sessionStorage.setItem(TOKEN_KEY, token);
+    sessionStorage.setItem(ROLE_KEY, role);
+    setUser({ token, role });
   };
 
   const logout = () => {
-    // TODO(TICKET-ADV112): clear sessionStorage and reset user state to null.
+    sessionStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(ROLE_KEY);
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading: false, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
