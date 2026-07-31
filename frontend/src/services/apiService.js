@@ -2,19 +2,37 @@
 const BASE = '/api';
 
 function authHeaders() {
-  // TODO(TICKET-ADV112): read 'reconx-token' from sessionStorage and return
-  //                     { Authorization: `Bearer <token>` }. Return {} when
-  //                     no token is set (login + signup endpoints).
-  return {};
+  const token = sessionStorage.getItem('reconx-token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 async function request(method, path, body) {
-  // TODO(TICKET-ADV112): fetch(`${BASE}${path}`, { method, headers, body }).
-  //   - headers must include Content-Type: application/json and ...authHeaders()
-  //   - serialise `body` via JSON.stringify when present
-  //   - on !res.ok throw new Error(`HTTP ${res.status}: ${detail}`)
-  //   - status 204 -> return null, otherwise return await res.json()
-  throw new Error('TICKET-ADV112 not implemented');
+  const response = await fetch(`${BASE}${path}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders(),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    let detail = response.statusText;
+    try {
+      const payload = await response.json();
+      detail = payload.message || payload.error || JSON.stringify(payload);
+    } catch {
+      try {
+        detail = await response.text();
+      } catch {
+        // keep status text fallback
+      }
+    }
+    throw new Error(`HTTP ${response.status}: ${detail}`);
+  }
+
+  if (response.status === 204) return null;
+  return response.json();
 }
 
 export const api = {
