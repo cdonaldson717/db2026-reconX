@@ -54,6 +54,15 @@ TICKET-ADV100 — ARIA roles + aria-live for the trade feed
       <div class="alert alert--danger" role="alert">
         Attention: 15 unmatched trades require review.
       </div>
+      <!-- TICKET-ADV100 aria-live so screen readers announce new trades -->
+<div
+  id="trade-feed"
+  class="trade-feed"
+  role="status"
+  aria-live="polite"
+  aria-atomic="false">
+</div>    </section>
+  </main>
 
       <section aria-labelledby="feed">
         <div class="feed-heading">
