@@ -1,33 +1,37 @@
 // TICKET-ADV125 — RTL test against the DataTable compound component.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi } from 'vitest';
-import DataTable from '../DataTable.jsx';
+import { describe, it, expect } from 'vitest';
+import DataTable from '../DataTable/DataTable.jsx';
 
 describe('<DataTable>', () => {
   it('renders columns and rows', () => {
     render(
-      <DataTable>
+      <DataTable data={[{ id: 1 }, { id: 2 }]}>
         <DataTable.Header columns={[{ key: 'a', label: 'Alpha' }, { key: 'b', label: 'Beta' }]} />
-        <DataTable.Body rows={[{ id: 1 }, { id: 2 }]} render={(r) => <span>row {r.id}</span>} />
+        <DataTable.Body renderRow={(r) => <span>row {r.id}</span>} />
       </DataTable>
     );
-    // TODO(TICKET-ADV125): write assertion — column labels "Alpha" / "Beta"
-    //                     should appear in the document.
-    // TODO(TICKET-ADV125): write assertion — rendered rows "row 1" / "row 2"
-    //                     should appear in the document.
+
+    expect(screen.getByRole('columnheader', { name: 'Alpha' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Beta' })).toBeInTheDocument();
+    expect(screen.getByText('row 1')).toBeInTheDocument();
+    expect(screen.getByText('row 2')).toBeInTheDocument();
   });
 
-  it('invokes onSortChange when a header is clicked', async () => {
-    const onSortChange = vi.fn();
+  it('sorts by a header when it is clicked', async () => {
     render(
-      <DataTable onSortChange={onSortChange}>
+      <DataTable data={[{ id: 1, a: 'Zulu' }, { id: 2, a: 'Alpha' }]}>
         <DataTable.Header columns={[{ key: 'a', label: 'Alpha' }]} />
-        <DataTable.Body rows={[]} render={() => null} />
+        <DataTable.Body renderRow={(row) => <span>{row.a}</span>} />
       </DataTable>
     );
-    await userEvent.click(screen.getByText('Alpha'));
-    // TODO(TICKET-ADV125): write assertion — onSortChange should have been
-    //                     called with the clicked column key ('a').
+    await userEvent.click(screen.getByRole('columnheader', { name: 'Alpha' }));
+
+    expect(screen.getByRole('columnheader', { name: 'Alpha' })).toHaveAttribute(
+      'aria-sort',
+      'ascending',
+    );
+    expect(screen.getAllByRole('row')[1]).toHaveTextContent('Alpha');
   });
 });
