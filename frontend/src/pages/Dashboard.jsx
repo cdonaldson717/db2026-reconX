@@ -2,14 +2,14 @@ import React, { useMemo } from 'react';
 import { withAuth } from '@components/withAuth.jsx';
 import { useTradeStream } from '@hooks/useTradeStream.js';
 
-function StatCard({ label, value }) {
+const StatCard = React.memo(function StatCard({ label, value }) {
   return (
     <article className="stat-card">
       <h3>{label}</h3>
       <p>{value}</p>
     </article>
   );
-}
+});
 
 export function Dashboard({ trades: providedTrades }) {
   const { trades: streamedTrades, isConnected } = useTradeStream();
@@ -90,4 +90,6 @@ export function Dashboard({ trades: providedTrades }) {
   );
 }
 
-export default withAuth(Dashboard);
+const MemoizedDashboard = React.memo(Dashboard);
+
+export default withAuth(MemoizedDashboard);
