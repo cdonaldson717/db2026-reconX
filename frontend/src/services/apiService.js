@@ -36,10 +36,7 @@ async function request(method, path, body) {
 }
 
 export const api = {
-  login: (email, password)   => {
-    // TODO(TICKET-ADV072): POST /auth/login with { email, password }.
-    throw new Error('TICKET-ADV072 not implemented');
-  },
+  login: (email, password)   => request('POST', '/auth/login', { email, password }),
   listTrades: (params = '')  => {
     // TODO(TICKET-ADV114): GET /v1/trades + `params` query string.
     throw new Error('TICKET-ADV114 not implemented');
