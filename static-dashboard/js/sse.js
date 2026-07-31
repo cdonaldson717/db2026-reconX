@@ -1,27 +1,59 @@
-// TICKET-ADV106 / ADV107 — EventSource live feed with prepend + slide-in animation.
+// TICKET-ADV104 — browser-managed Server-Sent Events subscription.
 (function () {
-  const feed = document.getElementById('trade-feed');
-  if (!feed) return;
+  const STREAM_URL = '/api/v1/trades/stream';
+  const FEED_EL = document.getElementById('trade-feed');
+  const STATUS_EL = document.getElementById('sse-status');
 
-  // Hardcoded demo events for the static dashboard (no backend required).
-  // Replace with: const sse = new EventSource('/api/v1/trades/stream');
-  const demoEvents = [
-    { tradeRef: 'EQU-20260603-0001', symbol: 'SAP.DE',  qty: 1000, price: 125.50, status: 'MATCHED' },
-    { tradeRef: 'FX-20260603-0001',  symbol: 'EUR/USD', qty: 1_000_000, price: 1.0852, status: 'PENDING' },
-    { tradeRef: 'EQU-20260603-0002', symbol: 'AAPL',    qty: 500,  price: 178.20, status: 'BREAK' },
-  ];
+  if (!FEED_EL || !STATUS_EL) return;
 
-  function prepend(trade) {
-    const el = document.createElement('article');
-    el.className = 'trade-card trade-card--' + trade.status.toLowerCase();
-    el.innerHTML = `
-      <strong>${trade.tradeRef}</strong>
-      <span> ${trade.symbol} </span>
-      <span> qty=${trade.qty} </span>
-      <span> price=${trade.price} </span>
-      <span> [${trade.status}]</span>`;
-    feed.prepend(el);
+  let sse = null;
+  let connectionStatus = 'connecting';
+
+  function updateConnectionBadge(text, variant) {
+    connectionStatus = variant;
+    STATUS_EL.textContent = text;
+    STATUS_EL.className = `sse-status sse-status--${connectionStatus}`;
   }
 
-  demoEvents.forEach((e, i) => setTimeout(() => prepend(e), 500 * i));
+  // TICKET-ADV105 replaces this basic renderer with the bounded, escaped row.
+  function prependTradeRow(trade) {
+    const row = document.createElement('article');
+    row.className = `trade-card trade-card--${String(trade.status).toLowerCase()}`;
+    row.textContent = [
+      trade.tradeRef,
+      trade.symbol,
+      `qty=${trade.qty}`,
+      `price=${trade.price}`,
+      `[${trade.status}]`,
+    ].join(' ');
+    FEED_EL.prepend(row);
+  }
+
+  function connect() {
+    updateConnectionBadge('Connecting…', 'connecting');
+    sse = new EventSource(STREAM_URL);
+
+    sse.onopen = function () {
+      updateConnectionBadge('Live', 'live');
+    };
+
+    sse.onmessage = function (event) {
+      try {
+        prependTradeRow(JSON.parse(event.data));
+      } catch (error) {
+        console.error('Ignoring malformed trade event', error);
+      }
+    };
+
+    sse.onerror = function () {
+      // EventSource reconnects automatically; do not create another instance.
+      updateConnectionBadge('Reconnecting…', 'reconnecting');
+    };
+  }
+
+  window.addEventListener('beforeunload', function () {
+    sse?.close();
+  });
+
+  connect();
 })();
