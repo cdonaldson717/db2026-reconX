@@ -78,3 +78,51 @@ body {
 
 button { padding: var(--space-1) var(--space-2); border: 1px solid var(--color-border); background: transparent; color: inherit; border-radius: var(--radius); cursor: pointer; }
 :focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+
+/* TICKET-ADV106 - advanced trade table */
+.table-scroll {
+  overflow: auto;
+  max-height: 60vh;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 14px;
+}
+
+.data-table th,
+.data-table td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.data-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  cursor: pointer;
+  user-select: none;
+  z-index: 1;
+}
+
+.data-table thead th[aria-sort="ascending"]::after  { content: " ▲"; }
+.data-table thead th[aria-sort="descending"]::after { content: " ▼"; }
+
+.resize-handle {
+  display: inline-block;
+  width: 6px;
+  height: 16px;
+  cursor: col-resize;
+  background: var(--color-border);
+  margin-left: var(--space-2);
+  vertical-align: middle;
+}
