@@ -4,32 +4,47 @@ import React from 'react';
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { error: null };
+    this.state = { hasError: false, error: null };
+    this.handleReset = this.handleReset.bind(this);
   }
 
-  static getDerivedStateFromError(/* error */) {
-    // TODO(TICKET-ADV113): return new state so the next render shows the
-    //                     fallback UI (e.g. { error }).
-    return null;
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
   }
 
   componentDidCatch(error, info) {
-    // TODO(TICKET-ADV113): log the error (in prod we'd ship to Sentry / a
-    //                     browser-side logger). console.error is fine here.
+    console.error('ErrorBoundary caught', error, info);
+  }
+
+  handleReset() {
+    this.setState({ hasError: false, error: null });
   }
 
   render() {
-    // TODO(TICKET-ADV113): if this.state.error is set, render an
-    //                     accessible fallback with a "Try again" button that
-    //                     clears the error state. Otherwise render children.
+    if (this.state.hasError) {
+      const { fallback: Fallback } = this.props;
+
+      if (Fallback) {
+        return <Fallback error={this.state.error} onReset={this.handleReset} />;
+      }
+
+      return (
+        <div role="alert">
+          <p>Something went wrong.</p>
+          {this.state.error?.message ? <pre>{this.state.error.message}</pre> : null}
+          <button type="button" onClick={this.handleReset}>Try again</button>
+        </div>
+      );
+    }
+
     return this.props.children;
   }
 }
 
-export function withErrorBoundary(Component) {
+export function withErrorBoundary(Component, Fallback) {
   function WithErrorBoundary(props) {
     return (
-      <ErrorBoundary>
+      <ErrorBoundary fallback={Fallback}>
         <Component {...props} />
       </ErrorBoundary>
     );
