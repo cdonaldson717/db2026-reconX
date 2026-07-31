@@ -13,21 +13,26 @@ async function request(method, path, body) {
       'Content-Type': 'application/json',
       ...authHeaders(),
     },
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body ? JSON.stringify(body) : undefined,
   });
 
   if (!response.ok) {
-    const contentType = response.headers.get('content-type') || '';
-    const errorBody = contentType.includes('application/json')
-      ? await response.json()
-      : await response.text();
-    const detail = typeof errorBody === 'string'
-      ? errorBody
-      : errorBody.detail || errorBody.message || response.statusText;
+    let detail = response.statusText;
+    try {
+      const payload = await response.json();
+      detail = payload.message || payload.error || JSON.stringify(payload);
+    } catch {
+      try {
+        detail = await response.text();
+      } catch {
+        // keep status text fallback
+      }
+    }
     throw new Error(`HTTP ${response.status}: ${detail}`);
   }
 
-  return response.status === 204 ? null : response.json();
+  if (response.status === 204) return null;
+  return response.json();
 }
 
 export const api = {
