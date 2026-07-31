@@ -8,6 +8,7 @@ import com.dbtraining.reconx.repository.entity.Trade;
 import com.dbtraining.reconx.security.JwtTokenProvider;
 import com.dbtraining.reconx.security.SecurityConfig;
 import com.dbtraining.reconx.service.TradeService;
+import com.dbtraining.reconx.service.TradeStreamService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -28,10 +30,14 @@ import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(
@@ -53,6 +59,9 @@ class TradeControllerWebMvcTest {
 
     @MockBean
     private TradeMapper tradeMapper;
+
+    @MockBean
+    private TradeStreamService tradeStreamService;
 
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
@@ -110,6 +119,19 @@ class TradeControllerWebMvcTest {
                 .andExpect(header().string("Location", containsString("/api/v1/trades/42")))
                 .andExpect(jsonPath("$.id").value(42))
                 .andExpect(jsonPath("$.tradeRef").value("TRD-20260315-9999"));
+
+        verify(tradeStreamService).publish(response);
+    }
+
+    @Test
+    void testStream_unauthenticated_opensSseConnection() throws Exception {
+        when(tradeStreamService.subscribe()).thenReturn(new SseEmitter(0L));
+
+        mockMvc.perform(get("/v1/trades/stream")
+                        .accept(MediaType.TEXT_EVENT_STREAM))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_EVENT_STREAM))
+                .andExpect(request().asyncStarted());
     }
 
     @Test

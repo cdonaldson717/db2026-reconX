@@ -1,6 +1,6 @@
 // TICKET-ADV104 — browser-managed Server-Sent Events subscription.
 (function () {
-  const STREAM_URL = '/api/v1/trades/stream';
+  const STREAM_URL = document.body?.dataset.streamUrl || '/api/v1/trades/stream';
   const FEED_EL = document.getElementById('trade-feed');
   const STATUS_EL = document.getElementById('sse-status');
 
