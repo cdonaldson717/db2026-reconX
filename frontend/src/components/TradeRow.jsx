@@ -1,34 +1,59 @@
-// TICKET-ADV119 / ADV121 - memoized trade row with stable onClick support.
 import React from 'react';
 
 function TradeRowImpl({ trade, onClick, isSelected = false }) {
-  const id = trade.id ?? trade.tradeRef;
+  const statusClass = String(trade.status ?? '')
+    .toLowerCase()
+    .replaceAll('_', '-');
+
   const symbol = trade.instrumentSymbol ?? trade.symbol ?? '';
+  const quantity = trade.quantity ?? trade.qty ?? '';
+  const id = trade.id ?? trade.tradeRef;
+
+  function handleClick() {
+    onClick?.(id);
+  }
 
   return (
-    <button
-      type="button"
-      className={`trade-row${isSelected ? ' trade-row--selected' : ''}`}
-      onClick={() => onClick(id)}
+    <div
+      className={`data-table__row${isSelected ? ' data-table__row--selected' : ''}`}
+      role="row"
+      onClick={handleClick}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          handleClick();
+        }
+      }}
+      tabIndex={onClick ? 0 : undefined}
     >
-      <span>{trade.tradeRef}</span>
-      <span>{symbol}</span>
-      <span>{trade.quantity}</span>
-      <span>{trade.price}</span>
-      <span>{trade.status}</span>
-    </button>
+      <span role="cell">{trade.tradeRef}</span>
+      <span role="cell">{symbol}</span>
+      <span role="cell">{quantity}</span>
+      <span role="cell">{trade.price}</span>
+      <span role="cell">
+        <span className={`status-pill status-pill--${statusClass}`}>
+          {trade.status}
+        </span>
+      </span>
+    </div>
   );
 }
 
-function areEqual(prev, next) {
-  return prev.trade.id === next.trade.id
-    && prev.trade.tradeRef === next.trade.tradeRef
-    && (prev.trade.instrumentSymbol ?? prev.trade.symbol) === (next.trade.instrumentSymbol ?? next.trade.symbol)
-    && prev.trade.quantity === next.trade.quantity
-    && prev.trade.price === next.trade.price
-    && prev.trade.status === next.trade.status
-    && prev.isSelected === next.isSelected
-    && prev.onClick === next.onClick;
+function areEqual(previous, next) {
+  return (
+    previous.trade.id === next.trade.id &&
+    previous.trade.tradeRef === next.trade.tradeRef &&
+    (previous.trade.instrumentSymbol ?? previous.trade.symbol) ===
+      (next.trade.instrumentSymbol ?? next.trade.symbol) &&
+    (previous.trade.quantity ?? previous.trade.qty) ===
+      (next.trade.quantity ?? next.trade.qty) &&
+    previous.trade.price === next.trade.price &&
+    previous.trade.status === next.trade.status &&
+    previous.isSelected === next.isSelected &&
+    previous.onClick === next.onClick
+  );
 }
 
 export const TradeRow = React.memo(TradeRowImpl, areEqual);
+
+export default TradeRow;
