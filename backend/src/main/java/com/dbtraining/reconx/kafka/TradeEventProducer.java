@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  *          partitioned by tradeRef.
  * ============================================================================
  *
- *  TODO(TICKET-ADV129):
+ *  Publish pattern:
  *    public void publish(TradeEvent event) {
  *        log.debug("Publishing TradeEvent eventId={} ref={} type={}",
  *                  event.eventId(), event.tradeRef(), event.eventType());
@@ -36,8 +36,6 @@ import org.springframework.stereotype.Component;
 public class TradeEventProducer {
 
     private static final Logger log = LoggerFactory.getLogger(TradeEventProducer.class);
-    private static final String TOPIC = "trade-events";
-
     private final KafkaTemplate<String, TradeEvent> template;
 
     public TradeEventProducer(KafkaTemplate<String, TradeEvent> template) {
@@ -48,11 +46,18 @@ public class TradeEventProducer {
         log.debug("Publishing TradeEvent eventId={} ref={} type={}",
                 event.eventId(), event.tradeRef(), event.eventType());
         try {
-            template.send(TOPIC, event.tradeRef(), event)
-                    .whenComplete((result, error) -> {
-                        if (error != null) {
-                            log.error("Kafka publish failed for eventId={}", event.eventId(), error);
+            template.send(KafkaTopicsConfig.TRADE_EVENTS, event.tradeRef(), event)
+                    .whenComplete((result, exception) -> {
+                        if (exception != null) {
+                            log.error("Failed to publish TradeEvent eventId={} ref={}",
+                                    event.eventId(), event.tradeRef(), exception);
+                            return;
                         }
+
+                        log.debug("Published TradeEvent eventId={} partition={} offset={}",
+                                event.eventId(),
+                                result.getRecordMetadata().partition(),
+                                result.getRecordMetadata().offset());
                     });
         } catch (RuntimeException error) {
             // Persistence is the source of truth; a broker outage must not roll back it.

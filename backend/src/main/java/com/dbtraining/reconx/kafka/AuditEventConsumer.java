@@ -47,16 +47,16 @@ public class AuditEventConsumer {
 
     public AuditEventConsumer(AuditLogRepository repo) { this.repo = repo; }
 
-    @KafkaListener(topics = "trade-events", groupId = "audit-service")
+    @KafkaListener(topics = KafkaTopicsConfig.TRADE_EVENTS, groupId = "audit-service")
     public void onTradeEvent(TradeEvent e) {
         repo.save(new com.dbtraining.reconx.repository.entity.AuditLogEntry(
                 e.eventId().toString(),
                 e.tradeRef(),
                 e.eventType().name(),
                 e.timestamp(),
-                e.actor(),
-                e.before(),
-                e.after()));
+                null,
+                e.before() == null ? null : e.before().toString(),
+                e.after() == null ? null : e.after().toString()));
         log.debug("Audit row persisted for eventId={}", e.eventId());
     }
 }

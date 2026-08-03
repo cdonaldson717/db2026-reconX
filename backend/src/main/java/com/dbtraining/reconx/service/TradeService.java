@@ -2,6 +2,7 @@ package com.dbtraining.reconx.service;
 
 import com.dbtraining.reconx.dto.TradeRequest;
 import com.dbtraining.reconx.dto.TradeEvent;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.dbtraining.reconx.exception.DuplicateTradeRefException;
 import com.dbtraining.reconx.exception.TradeNotFoundException;
 import com.dbtraining.reconx.kafka.TradeEventProducer;
@@ -16,8 +17,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
-import java.time.Instant;
-import java.util.UUID;
 
 import static com.dbtraining.reconx.repository.TradeSpecifications.*;
 
@@ -89,15 +88,10 @@ public class TradeService {
         Trade saved = tradeRepo.save(trade);
         metrics.incrementTradeCreated();
         metrics.recordTradeValue(saved.getQuantity().multiply(saved.getPrice()).doubleValue());
-        events.publish(new TradeEvent(
-                UUID.randomUUID(),
-                saved.getTradeRef(),
-                TradeEvent.EventType.TRADE_CREATED,
-                Instant.now(),
-                actor,
-                null,
-                "{\"tradeRef\":\"" + saved.getTradeRef() + "\",\"status\":\""
-                        + saved.getStatus() + "\"}"));
+        var after = JsonNodeFactory.instance.objectNode()
+                .put("tradeRef", saved.getTradeRef())
+                .put("status", saved.getStatus());
+        events.publish(TradeEvent.created(saved.getTradeRef(), after));
         return saved;
     }
 
