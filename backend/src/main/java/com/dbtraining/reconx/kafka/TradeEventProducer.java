@@ -45,6 +45,18 @@ public class TradeEventProducer {
     }
 
     public void publish(TradeEvent event) {
-        throw new UnsupportedOperationException("TICKET-ADV129");
+        log.debug("Publishing TradeEvent eventId={} ref={} type={}",
+                event.eventId(), event.tradeRef(), event.eventType());
+        try {
+            template.send(TOPIC, event.tradeRef(), event)
+                    .whenComplete((result, error) -> {
+                        if (error != null) {
+                            log.error("Kafka publish failed for eventId={}", event.eventId(), error);
+                        }
+                    });
+        } catch (RuntimeException error) {
+            // Persistence is the source of truth; a broker outage must not roll back it.
+            log.error("Kafka publish could not start for eventId={}", event.eventId(), error);
+        }
     }
 }

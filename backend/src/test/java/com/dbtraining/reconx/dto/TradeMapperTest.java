@@ -3,6 +3,7 @@ package com.dbtraining.reconx.dto;
 import com.dbtraining.reconx.repository.entity.Counterparty;
 import com.dbtraining.reconx.repository.entity.Instrument;
 import com.dbtraining.reconx.repository.entity.Trade;
+import com.dbtraining.reconx.repository.entity.TradeStatus;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -76,7 +77,7 @@ class TradeMapperTest {
         assertThat(trade.getQuantity()).isEqualByComparingTo("250");
         assertThat(trade.getPrice()).isEqualByComparingTo("99.95");
         assertThat(trade.getTradeDate()).isEqualTo(LocalDate.of(2026, 6, 3));
-        assertThat(trade.getStatus()).isEqualTo("PENDING");
+        assertThat(trade.getStatus()).isEqualTo(TradeStatus.PENDING);
         assertThat(trade.getDeletedAt()).isNull();
         assertThat(trade.getCreatedAt()).isNull();
         assertThat(trade.getModifiedAt()).isNull();

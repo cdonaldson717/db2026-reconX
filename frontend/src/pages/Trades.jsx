@@ -1,6 +1,6 @@
 // TICKET-ADV114 — Compound DataTable.
 // TICKET-ADV117 — useDebouncedSearch.
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { withAuth } from '@components/withAuth.jsx';
 import DataTable from '@components/DataTable.jsx';
 import { TradeRow } from '@components/TradeRow.jsx';
@@ -10,19 +10,30 @@ import { api } from '@services/apiService.js';
 function Trades() {
   const [search, setSearch] = useState('');
   const debounced = useDebouncedSearch(search, 300);
-  const [page, setPage] = useState(0);
   const [selectedId, setSelectedId] = useState(null);
-  const [data, setData] = useState({ items: [], totalPages: 0 });
+  const [trades, setTrades] = useState([]);
 
   const handleSelect = useCallback((id) => {
     setSelectedId(id);
   }, []);
 
-  // TODO(TICKET-ADV114 + ADV117): useEffect that:
-  //   - builds a query string from `page` and `debounced` (status filter)
-  //   - calls api.listTrades(params) and stores the response in `data`
-  //   - re-runs whenever `page` or `debounced` changes
-  //   - degrades gracefully on error (set empty page).
+  useEffect(() => {
+    let active = true;
+    const query = new URLSearchParams({ size: '100' });
+    if (debounced) query.set('status', debounced);
+
+    api.listTrades(`?${query.toString()}`)
+      .then((response) => {
+        if (active) setTrades(response.content ?? response.items ?? []);
+      })
+      .catch(() => {
+        if (active) setTrades([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [debounced]);
 
   return (
     <section>
@@ -33,7 +44,7 @@ function Trades() {
         value={search}
         onChange={(e) => setSearch(e.target.value.toUpperCase())}
       />
-      <DataTable>
+      <DataTable data={trades} pageSize={20}>
         <DataTable.Header columns={[
           { key: 'tradeRef', label: 'Ref' },
           { key: 'symbol',   label: 'Symbol' },
@@ -42,8 +53,7 @@ function Trades() {
           { key: 'status',   label: 'Status' },
         ]} />
         <DataTable.Body
-          rows={data.items}
-          render={(trade) => (
+          renderRow={(trade) => (
             <TradeRow
               key={trade.id ?? trade.tradeRef}
               trade={trade}
@@ -52,11 +62,7 @@ function Trades() {
             />
           )}
         />
-        <DataTable.Pagination
-          page={page}
-          totalPages={Math.max(1, data.totalPages)}
-          onChange={setPage}
-        />
+        <DataTable.Pagination />
       </DataTable>
     </section>
   );
