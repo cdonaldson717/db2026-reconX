@@ -1,18 +1,10 @@
 package com.dbtraining.reconx.exception;
 
-/**
- * Signals that two trades differ beyond the active reconciliation tolerance.
- */
-public class ReconciliationMismatchException extends ReconException {
+public class ReconciliationMismatchException extends RuntimeException {
 
     public ReconciliationMismatchException(String message) {
         super(message);
     }
-
-    public ReconciliationMismatchException(String message, Throwable cause) {
-        super(message, cause);
-    }
-}
 
     public ReconciliationMismatchException(String message, Throwable cause) {
         super(message, cause);
