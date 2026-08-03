@@ -19,8 +19,3 @@ public class InvalidTradeException extends ReconException {
         super(message, cause);
     }
 }
-
-    public InvalidTradeException(String message, Throwable cause) {
-        super(message, cause);
-    }
-}

@@ -81,6 +81,11 @@ services:
     depends_on:
       backend: {condition: service_healthy}
     ports: ["5173:80"]
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks: [reconx]
 
   prometheus:
@@ -90,12 +95,18 @@ services:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
     ports: ["9090:9090"]
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks: [reconx]
 
   grafana:
     image: grafana/grafana:11.2.0
     container_name: reconx-grafana
-    depends_on: [prometheus]
+    depends_on:
+      prometheus: {condition: service_healthy}
     environment:
       GF_SECURITY_ADMIN_USER:     admin
       GF_SECURITY_ADMIN_PASSWORD: admin
@@ -104,6 +115,11 @@ services:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
       - grafana_data:/var/lib/grafana
     ports: ["3000:3000"]
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks: [reconx]
 
   # Optional — bring up with `--profile debug`
