@@ -3,4 +3,5 @@ target/
 .idea/
 *.iml
 *.log
+node_modules/
 .mvn/wrapper/maven-wrapper.jar
