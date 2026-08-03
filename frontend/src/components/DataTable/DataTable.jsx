@@ -48,7 +48,10 @@ export default function DataTable({
   pageSize = 10,
   children,
 }) {
-  const safeData = Array.isArray(data) ? data : [];
+  const safeData = useMemo(
+    () => Array.isArray(data) ? data : [],
+    [data],
+  );
 
   const [page, setPage] = useState(0);
   const [sortKey, setSortKey] = useState(null);

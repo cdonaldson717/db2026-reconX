@@ -4,6 +4,7 @@ import com.dbtraining.reconx.dto.TradeEvent;
 import com.dbtraining.reconx.repository.AuditLogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 /**
@@ -46,7 +47,16 @@ public class AuditEventConsumer {
 
     public AuditEventConsumer(AuditLogRepository repo) { this.repo = repo; }
 
+    @KafkaListener(topics = KafkaTopicsConfig.TRADE_EVENTS, groupId = "audit-service")
     public void onTradeEvent(TradeEvent e) {
-        throw new UnsupportedOperationException("TICKET-ADV132");
+        repo.save(new com.dbtraining.reconx.repository.entity.AuditLogEntry(
+                e.eventId().toString(),
+                e.tradeRef(),
+                e.eventType().name(),
+                e.timestamp(),
+                null,
+                e.before() == null ? null : e.before().toString(),
+                e.after() == null ? null : e.after().toString()));
+        log.debug("Audit row persisted for eventId={}", e.eventId());
     }
 }

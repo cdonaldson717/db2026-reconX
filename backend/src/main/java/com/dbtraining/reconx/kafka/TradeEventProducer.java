@@ -45,19 +45,23 @@ public class TradeEventProducer {
     public void publish(TradeEvent event) {
         log.debug("Publishing TradeEvent eventId={} ref={} type={}",
                 event.eventId(), event.tradeRef(), event.eventType());
+        try {
+            template.send(KafkaTopicsConfig.TRADE_EVENTS, event.tradeRef(), event)
+                    .whenComplete((result, exception) -> {
+                        if (exception != null) {
+                            log.error("Failed to publish TradeEvent eventId={} ref={}",
+                                    event.eventId(), event.tradeRef(), exception);
+                            return;
+                        }
 
-        template.send(KafkaTopicsConfig.TRADE_EVENTS, event.tradeRef(), event)
-                .whenComplete((result, exception) -> {
-                    if (exception != null) {
-                        log.error("Failed to publish TradeEvent eventId={} ref={}",
-                                event.eventId(), event.tradeRef(), exception);
-                        return;
-                    }
-
-                    log.debug("Published TradeEvent eventId={} partition={} offset={}",
-                            event.eventId(),
-                            result.getRecordMetadata().partition(),
-                            result.getRecordMetadata().offset());
-                });
+                        log.debug("Published TradeEvent eventId={} partition={} offset={}",
+                                event.eventId(),
+                                result.getRecordMetadata().partition(),
+                                result.getRecordMetadata().offset());
+                    });
+        } catch (RuntimeException error) {
+            // Persistence is the source of truth; a broker outage must not roll back it.
+            log.error("Kafka publish could not start for eventId={}", event.eventId(), error);
+        }
     }
 }

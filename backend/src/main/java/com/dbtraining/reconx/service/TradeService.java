@@ -1,6 +1,8 @@
 package com.dbtraining.reconx.service;
 
 import com.dbtraining.reconx.dto.TradeRequest;
+import com.dbtraining.reconx.dto.TradeEvent;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.dbtraining.reconx.exception.DuplicateTradeRefException;
 import com.dbtraining.reconx.exception.TradeNotFoundException;
 import com.dbtraining.reconx.kafka.TradeEventProducer;
@@ -86,6 +88,10 @@ public class TradeService {
         Trade saved = tradeRepo.save(trade);
         metrics.incrementTradeCreated();
         metrics.recordTradeValue(saved.getQuantity().multiply(saved.getPrice()).doubleValue());
+        var after = JsonNodeFactory.instance.objectNode()
+                .put("tradeRef", saved.getTradeRef())
+                .put("status", saved.getStatus());
+        events.publish(TradeEvent.created(saved.getTradeRef(), after));
         return saved;
     }
 

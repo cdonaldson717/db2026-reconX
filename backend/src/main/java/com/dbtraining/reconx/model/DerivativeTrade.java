@@ -185,6 +185,19 @@ public final class DerivativeTrade extends Trade implements TradeType {
             Objects.requireNonNull(side, "side");
             Objects.requireNonNull(tradeDate, "tradeDate");
 
+            if (underlying.isBlank()) {
+                throw new IllegalStateException("underlying must not be blank");
+            }
+            if (strike.signum() <= 0) {
+                throw new IllegalStateException("strike must be > 0");
+            }
+            if (quantity.signum() <= 0) {
+                throw new IllegalStateException("quantity must be > 0");
+            }
+            if (!expiry.isAfter(tradeDate)) {
+                throw new IllegalStateException("expiry must be after tradeDate");
+            }
+
             return new DerivativeTrade(this);
         }
     }
